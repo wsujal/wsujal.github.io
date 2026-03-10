@@ -1,0 +1,1908 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>8085 Assembly — Learn by Thinking</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0c0f;
+    --surface: #111318;
+    --surface2: #181c23;
+    --border: #222730;
+    --accent: #00e5ff;
+    --accent2: #ff6b35;
+    --accent3: #7fff6b;
+    --text: #e8eaf0;
+    --muted: #6b7280;
+    --gold: #ffd166;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Syne', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* GRID BG */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,229,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,229,255,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* NAV */
+  nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(10,12,15,0.92);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    gap: 0;
+    height: 56px;
+  }
+
+  .nav-logo {
+    font-size: 1.1rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: var(--accent);
+    margin-right: 2rem;
+    white-space: nowrap;
+  }
+
+  .nav-tabs {
+    display: flex;
+    gap: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .nav-tabs::-webkit-scrollbar { display: none; }
+
+  .nav-tab {
+    padding: 0 1.1rem;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--muted);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+    white-space: nowrap;
+    background: none;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+  }
+  .nav-tab:hover { color: var(--text); }
+  .nav-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+  /* SECTIONS */
+  section {
+    display: none;
+    padding: 3rem 2rem;
+    max-width: 1100px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+    animation: fadeIn 0.3s ease;
+  }
+  section.active { display: block; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* HERO */
+  .hero {
+    text-align: center;
+    padding: 5rem 2rem 4rem;
+  }
+  .hero-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 1rem;
+  }
+  .hero h1 {
+    font-size: clamp(2.5rem, 6vw, 4.5rem);
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+    margin-bottom: 1.2rem;
+  }
+  .hero h1 span { color: var(--accent2); }
+  .hero p {
+    font-size: 1.1rem;
+    color: var(--muted);
+    max-width: 600px;
+    margin: 0 auto 2.5rem;
+    line-height: 1.7;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.6rem;
+    border-radius: 6px;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #000;
+  }
+  .btn-primary:hover { background: #33eaff; transform: translateY(-1px); box-shadow: 0 4px 20px rgba(0,229,255,0.3); }
+
+  /* INSIGHT CARDS */
+  .insight-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.2rem;
+    margin-top: 2rem;
+  }
+
+  .insight-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.6rem;
+    cursor: pointer;
+    transition: all 0.25s;
+    position: relative;
+    overflow: hidden;
+  }
+  .insight-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: var(--card-color, var(--accent));
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.3s;
+  }
+  .insight-card:hover::before { transform: scaleX(1); }
+  .insight-card:hover { border-color: var(--card-color, var(--accent)); transform: translateY(-2px); }
+
+  .card-icon { font-size: 2rem; margin-bottom: 0.8rem; }
+  .card-title { font-size: 1rem; font-weight: 800; margin-bottom: 0.5rem; }
+  .card-desc { font-size: 0.85rem; color: var(--muted); line-height: 1.6; }
+
+  /* SECTION HEADER */
+  .sec-header {
+    margin-bottom: 2.5rem;
+  }
+  .sec-tag {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.5rem;
+  }
+  .sec-title {
+    font-size: 2rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    margin-bottom: 0.5rem;
+  }
+  .sec-sub {
+    font-size: 0.95rem;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  /* CONCEPT BOX */
+  .concept-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.8rem;
+    margin-bottom: 1.2rem;
+  }
+  .concept-box h3 {
+    font-size: 1.05rem;
+    font-weight: 800;
+    margin-bottom: 0.8rem;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+  .concept-box p {
+    font-size: 0.9rem;
+    color: var(--muted);
+    line-height: 1.7;
+    margin-bottom: 0.8rem;
+  }
+  .concept-box p:last-child { margin-bottom: 0; }
+
+  /* CODE DISPLAY */
+  .code-block {
+    background: #060810;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.2rem 1.4rem;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.82rem;
+    line-height: 1.8;
+    overflow-x: auto;
+    margin: 0.8rem 0;
+  }
+  .code-line { display: flex; gap: 1.5rem; }
+  .code-addr { color: var(--muted); min-width: 60px; }
+  .code-instr { color: var(--accent); }
+  .code-comment { color: var(--muted); font-style: italic; }
+  .kw { color: var(--accent2); }
+  .reg { color: var(--accent3); }
+  .num { color: var(--gold); }
+
+  /* INSTRUCTION BYTES VISUAL */
+  .bytes-visual {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin: 1rem 0;
+  }
+  .byte-box {
+    border-radius: 8px;
+    padding: 0.8rem 1rem;
+    text-align: center;
+    min-width: 90px;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.8rem;
+    line-height: 1.5;
+  }
+  .byte-box .byte-label { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.1em; opacity: 0.7; }
+  .byte-box .byte-val { font-size: 1.1rem; font-weight: 700; }
+  .byte-opcode { background: rgba(0,229,255,0.1); border: 1px solid rgba(0,229,255,0.3); color: var(--accent); }
+  .byte-operand { background: rgba(255,107,53,0.1); border: 1px solid rgba(255,107,53,0.3); color: var(--accent2); }
+  .byte-addrlo { background: rgba(255,209,102,0.1); border: 1px solid rgba(255,209,102,0.3); color: var(--gold); }
+  .byte-addrhi { background: rgba(127,255,107,0.1); border: 1px solid rgba(127,255,107,0.3); color: var(--accent3); }
+
+  /* INSTRUCTION TABLE */
+  .instr-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+    margin-top: 1rem;
+  }
+  .instr-table th {
+    background: var(--surface2);
+    padding: 0.7rem 1rem;
+    text-align: left;
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    border-bottom: 1px solid var(--border);
+  }
+  .instr-table td {
+    padding: 0.65rem 1rem;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  .instr-table tr:hover td { background: var(--surface2); }
+  .instr-table .mono { font-family: 'Space Mono', monospace; color: var(--accent); font-size: 0.8rem; }
+  .instr-table .badge {
+    display: inline-block;
+    padding: 0.15rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    font-family: 'Space Mono', monospace;
+  }
+  .badge-1 { background: rgba(127,255,107,0.15); color: var(--accent3); }
+  .badge-2 { background: rgba(255,107,53,0.15); color: var(--accent2); }
+  .badge-3 { background: rgba(255,209,102,0.15); color: var(--gold); }
+
+  /* ACCORDION */
+  .accordion {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 0.8rem;
+  }
+  .accordion-head {
+    padding: 1rem 1.4rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    background: var(--surface);
+    font-weight: 600;
+    font-size: 0.95rem;
+    transition: background 0.2s;
+    user-select: none;
+  }
+  .accordion-head:hover { background: var(--surface2); }
+  .accordion-head .arr {
+    font-size: 0.75rem;
+    color: var(--muted);
+    transition: transform 0.3s;
+  }
+  .accordion.open .arr { transform: rotate(180deg); }
+  .accordion-body {
+    display: none;
+    padding: 1.2rem 1.4rem;
+    background: var(--surface2);
+    border-top: 1px solid var(--border);
+    font-size: 0.88rem;
+    line-height: 1.7;
+    color: var(--muted);
+  }
+  .accordion.open .accordion-body { display: block; }
+
+  /* QUIZ */
+  .quiz-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 2rem;
+    max-width: 680px;
+  }
+  .quiz-q {
+    font-size: 1.05rem;
+    font-weight: 700;
+    margin-bottom: 1.4rem;
+    line-height: 1.5;
+  }
+  .quiz-options {
+    display: grid;
+    gap: 0.6rem;
+    margin-bottom: 1.4rem;
+  }
+  .quiz-opt {
+    padding: 0.8rem 1.2rem;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.85rem;
+    background: var(--surface2);
+    color: var(--text);
+    text-align: left;
+    transition: all 0.2s;
+  }
+  .quiz-opt:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+  .quiz-opt.correct { background: rgba(127,255,107,0.1); border-color: var(--accent3); color: var(--accent3); }
+  .quiz-opt.wrong { background: rgba(255,107,53,0.1); border-color: var(--accent2); color: var(--accent2); }
+  .quiz-opt:disabled { cursor: default; }
+
+  .quiz-feedback {
+    display: none;
+    padding: 0.9rem 1.2rem;
+    border-radius: 8px;
+    font-size: 0.88rem;
+    line-height: 1.6;
+    margin-bottom: 1rem;
+  }
+  .quiz-feedback.show { display: block; }
+  .quiz-feedback.correct { background: rgba(127,255,107,0.08); border: 1px solid rgba(127,255,107,0.2); color: #a8ffaa; }
+  .quiz-feedback.wrong { background: rgba(255,107,53,0.08); border: 1px solid rgba(255,107,53,0.2); color: #ffb99a; }
+
+  .quiz-nav { display: flex; gap: 0.8rem; align-items: center; flex-wrap: wrap; }
+  .quiz-progress { font-size: 0.8rem; color: var(--muted); font-family: 'Space Mono', monospace; }
+
+  /* SIMULATOR */
+  .sim-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.2rem;
+  }
+  @media (max-width: 700px) { .sim-container { grid-template-columns: 1fr; } }
+
+  .sim-panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.2rem;
+  }
+  .sim-panel h4 {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 1rem;
+    padding-bottom: 0.6rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .reg-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+  }
+  .reg-cell {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0.5rem 0.7rem;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.8rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.3s;
+  }
+  .reg-cell .reg-name { color: var(--accent2); font-weight: 700; }
+  .reg-cell .reg-value { color: var(--accent); }
+  .reg-cell.changed { background: rgba(0,229,255,0.08); border-color: var(--accent); }
+
+  .sim-code textarea {
+    width: 100%;
+    background: #060810;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0.9rem;
+    color: var(--text);
+    font-family: 'Space Mono', monospace;
+    font-size: 0.8rem;
+    line-height: 1.8;
+    resize: none;
+    height: 160px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .sim-code textarea:focus { border-color: var(--accent); }
+
+  .sim-controls { display: flex; gap: 0.6rem; margin-top: 0.8rem; flex-wrap: wrap; }
+  .btn-sm {
+    padding: 0.45rem 1rem;
+    border-radius: 6px;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.75rem;
+    font-weight: 700;
+    cursor: pointer;
+    border: 1px solid;
+    transition: all 0.2s;
+  }
+  .btn-run { background: rgba(127,255,107,0.1); border-color: var(--accent3); color: var(--accent3); }
+  .btn-run:hover { background: rgba(127,255,107,0.2); }
+  .btn-step { background: rgba(0,229,255,0.1); border-color: var(--accent); color: var(--accent); }
+  .btn-step:hover { background: rgba(0,229,255,0.2); }
+  .btn-reset { background: rgba(255,107,53,0.1); border-color: var(--accent2); color: var(--accent2); }
+  .btn-reset:hover { background: rgba(255,107,53,0.2); }
+
+  .sim-log {
+    margin-top: 0.8rem;
+    background: #060810;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0.8rem;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.75rem;
+    height: 80px;
+    overflow-y: auto;
+    line-height: 1.8;
+  }
+  .log-ok { color: var(--accent3); }
+  .log-info { color: var(--accent); }
+  .log-err { color: var(--accent2); }
+
+  /* FLAGS display */
+  .flags-row {
+    display: flex;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+    margin-top: 0.6rem;
+  }
+  .flag-pill {
+    padding: 0.25rem 0.6rem;
+    border-radius: 4px;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.7rem;
+    font-weight: 700;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    transition: all 0.3s;
+  }
+  .flag-pill.set { background: rgba(255,209,102,0.15); border-color: var(--gold); color: var(--gold); }
+
+  /* ADDRESSING MODE VISUAL */
+  .addr-demo {
+    display: grid;
+    gap: 0.8rem;
+    margin-top: 1rem;
+  }
+  .addr-row {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.9rem 1.2rem;
+    transition: all 0.2s;
+    cursor: default;
+  }
+  .addr-row:hover { border-color: var(--accent); }
+  .addr-mode { color: var(--accent2); font-weight: 700; font-size: 0.85rem; min-width: 130px; }
+  .addr-arrow { color: var(--muted); font-size: 1.1rem; }
+  .addr-ex { font-family: 'Space Mono', monospace; font-size: 0.82rem; color: var(--accent); }
+  .addr-desc { font-size: 0.8rem; color: var(--muted); margin-left: auto; text-align: right; }
+
+  /* PILL TAGS */
+  .tag {
+    display: inline-block;
+    padding: 0.2rem 0.6rem;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    margin-right: 0.3rem;
+  }
+  .tag-dt { background: rgba(0,229,255,0.1); color: var(--accent); border: 1px solid rgba(0,229,255,0.2); }
+  .tag-ar { background: rgba(255,209,102,0.1); color: var(--gold); border: 1px solid rgba(255,209,102,0.2); }
+  .tag-lo { background: rgba(127,255,107,0.1); color: var(--accent3); border: 1px solid rgba(127,255,107,0.2); }
+  .tag-br { background: rgba(255,107,53,0.1); color: var(--accent2); border: 1px solid rgba(255,107,53,0.2); }
+  .tag-ct { background: rgba(200,150,255,0.1); color: #c89cff; border: 1px solid rgba(200,150,255,0.2); }
+
+  /* ROTATE VISUAL */
+  .rotate-demo {
+    background: #060810;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.4rem;
+    margin: 0.8rem 0;
+  }
+  .bits-row {
+    display: flex;
+    gap: 0.3rem;
+    justify-content: center;
+    align-items: center;
+    font-family: 'Space Mono', monospace;
+  }
+  .bit-box {
+    width: 32px;
+    height: 32px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+    font-weight: 700;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    transition: all 0.4s;
+  }
+  .bit-box.one { background: rgba(0,229,255,0.15); border-color: var(--accent); color: var(--accent); }
+  .bit-box.zero { color: var(--muted); }
+  .bit-cy { background: rgba(255,209,102,0.1); border-color: var(--gold); color: var(--gold); }
+  .bit-arrow { color: var(--muted); font-size: 1rem; margin: 0 0.2rem; }
+  .bits-label { text-align: center; font-size: 0.7rem; color: var(--muted); margin-top: 0.5rem; letter-spacing: 0.08em; }
+  .rot-controls { display: flex; gap: 0.6rem; justify-content: center; margin-top: 1rem; flex-wrap: wrap; }
+
+  /* CHEAT SHEET */
+  .cheat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 0.6rem;
+    margin-top: 1rem;
+  }
+  .cheat-item {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    padding: 0.7rem 0.9rem;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.78rem;
+    transition: all 0.2s;
+  }
+  .cheat-item:hover { border-color: var(--accent); }
+  .cheat-item .ci { color: var(--accent); font-weight: 700; }
+  .cheat-item .cd { color: var(--muted); font-size: 0.72rem; margin-top: 0.2rem; }
+
+  /* RESPONSIVE */
+  @media (max-width: 600px) {
+    .hero h1 { font-size: 2rem; }
+    nav { padding: 0 1rem; }
+    section { padding: 2rem 1rem; }
+    .addr-desc { display: none; }
+  }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 4px; height: 4px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  /* HIGHLIGHT INLINE */
+  .hl { color: var(--accent); font-family: 'Space Mono', monospace; font-size: 0.9em; background: rgba(0,229,255,0.07); padding: 0.05em 0.3em; border-radius: 3px; }
+  .hl2 { color: var(--accent2); font-family: 'Space Mono', monospace; font-size: 0.9em; background: rgba(255,107,53,0.07); padding: 0.05em 0.3em; border-radius: 3px; }
+  .hl3 { color: var(--accent3); font-family: 'Space Mono', monospace; font-size: 0.9em; background: rgba(127,255,107,0.07); padding: 0.05em 0.3em; border-radius: 3px; }
+
+  hr.sec-div { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
+
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  @media (max-width: 600px) { .two-col { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">8085 ◈</div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="showSection('home')">Home</button>
+    <button class="nav-tab" onclick="showSection('bytes')">Instruction Bytes</button>
+    <button class="nav-tab" onclick="showSection('datatransfer')">Data Transfer</button>
+    <button class="nav-tab" onclick="showSection('arithmetic')">Arithmetic</button>
+    <button class="nav-tab" onclick="showSection('logical')">Logical</button>
+    <button class="nav-tab" onclick="showSection('branch')">Branching</button>
+    <button class="nav-tab" onclick="showSection('addressing')">Addr Modes</button>
+    <button class="nav-tab" onclick="showSection('rotate')">Rotate</button>
+    <button class="nav-tab" onclick="showSection('simulator')">Simulator</button>
+    <button class="nav-tab" onclick="showSection('quiz')">Quiz</button>
+    <button class="nav-tab" onclick="showSection('cheatsheet')">Cheat Sheet</button>
+  </div>
+</nav>
+
+<!-- ═══════════════════ HOME ═══════════════════ -->
+<section id="home" class="active">
+  <div class="hero">
+    <div class="hero-label">GTU 3160712 · Unit 4 & 5</div>
+    <h1>Learn 8085<br><span>Assembly Language</span></h1>
+    <p>You already know: ALU + Register Array + CU. That's enough to understand everything else. Let's build from there — one insight at a time.</p>
+    <button class="btn btn-primary" onclick="showSection('bytes')">Start Learning →</button>
+  </div>
+
+  <div class="sec-header" style="text-align:center;">
+    <div class="sec-tag">The 3 Core Insights</div>
+    <div class="sec-title">Everything flows from these</div>
+    <div class="sec-sub">Master these concepts and every instruction becomes obvious</div>
+  </div>
+
+  <div class="insight-grid">
+    <div class="insight-card" style="--card-color: var(--accent);" onclick="showSection('bytes')">
+      <div class="card-icon">📦</div>
+      <div class="card-title">Instructions are 1–3 bytes</div>
+      <div class="card-desc">The opcode always comes first (byte 1). Extra bytes carry data or addresses. Understanding this unlocks the entire instruction set.</div>
+    </div>
+    <div class="insight-card" style="--card-color: var(--accent2);" onclick="showSection('addressing')">
+      <div class="card-icon">🎯</div>
+      <div class="card-title">5 Ways to Get Data</div>
+      <div class="card-desc">Every instruction needs operands. There are only 5 ways to specify where data lives: immediate, direct, register, indirect, or implicit.</div>
+    </div>
+    <div class="insight-card" style="--card-color: var(--accent3);" onclick="showSection('datatransfer')">
+      <div class="card-icon">🔁</div>
+      <div class="card-title">Accumulator is the center</div>
+      <div class="card-desc">Almost all operations happen IN or THROUGH register A (Accumulator). If you remember this, instruction names start to make sense by themselves.</div>
+    </div>
+    <div class="insight-card" style="--card-color: var(--gold);" onclick="showSection('branch')">
+      <div class="card-icon">🔀</div>
+      <div class="card-title">Flags decide jumps</div>
+      <div class="card-desc">CY, Z, S, P, AC flags are set by arithmetic/logical ops. Conditional jumps check these flags — this is how 8085 does if/else and loops.</div>
+    </div>
+    <div class="insight-card" style="--card-color: #c89cff;" onclick="showSection('simulator')">
+      <div class="card-icon">⚡</div>
+      <div class="card-title">Try it yourself</div>
+      <div class="card-desc">Use the built-in simulator to write small programs and watch registers change live. Learning by doing beats reading every time.</div>
+    </div>
+    <div class="insight-card" style="--card-color: var(--accent2);" onclick="showSection('quiz')">
+      <div class="card-icon">🎓</div>
+      <div class="card-title">Test your understanding</div>
+      <div class="card-desc">10 exam-style questions with detailed explanations. Don't just memorize — understand WHY each answer is correct.</div>
+    </div>
+  </div>
+
+  <hr class="sec-div">
+  <div class="concept-box" style="border-left: 3px solid var(--accent);">
+    <h3>🏛️ What you already know — and why it matters</h3>
+    <p>You know the 8085 has: <strong>ALU</strong> (does math/logic), <strong>Register Array</strong> (fast storage: A, B, C, D, E, H, L, SP, PC), <strong>CU</strong> (fetches & decodes instructions).</p>
+    <p>Assembly Language is just a <em>human-readable way to write those instructions</em>. Instead of binary <span class="hl">01000111</span>, you write <span class="hl">MOV B,A</span>. The assembler converts it back. That's literally all assembly language is.</p>
+    <p>Every instruction tells the CU: "Put this data HERE" or "Do this math on A" or "Jump to that address if zero flag is set." Simple!</p>
+  </div>
+</section>
+
+<!-- ═══════════════════ INSTRUCTION BYTES ═══════════════════ -->
+<section id="bytes">
+  <div class="sec-header">
+    <div class="sec-tag">Core Concept #1</div>
+    <div class="sec-title">1-Byte, 2-Byte, 3-Byte Instructions</div>
+    <div class="sec-sub">Every instruction in memory is 1 to 3 bytes. The first byte is ALWAYS the opcode. Click the examples below to visualize each instruction's bytes.</div>
+  </div>
+
+  <div class="concept-box">
+    <h3>💡 The Mental Model</h3>
+    <p>Think of it like a command + arguments. <span class="hl">MOV B,A</span> — the CPU knows from just the opcode <em>which</em> registers are involved, so no extra bytes needed. But <span class="hl">MVI B, 32H</span> — the opcode says "load B with data" but WHAT data? You need a 2nd byte. <span class="hl">LDA 2050H</span> — load accumulator from WHERE? A 16-bit address needs 2 more bytes (low byte first, then high byte).</p>
+  </div>
+
+  <div class="two-col">
+    <div>
+      <div class="concept-box">
+        <h3>1️⃣ 1-Byte Instructions</h3>
+        <p>Opcode + Operand packed in <em>one byte</em>. The destination and source are implied by the opcode itself.</p>
+        <p>Examples: <span class="hl">MOV B,A</span> &nbsp; <span class="hl">LDAX D</span> &nbsp; <span class="hl">PUSH B</span> &nbsp; <span class="hl">RLC</span></p>
+        <div class="bytes-visual">
+          <div class="byte-box byte-opcode"><div class="byte-label">Byte 1</div><div class="byte-val">Opcode</div></div>
+        </div>
+        <p style="margin-top:0.5rem; color: var(--muted); font-size:0.82rem;">Memory footprint: 1 byte. Fastest to fetch.</p>
+      </div>
+    </div>
+    <div>
+      <div class="concept-box">
+        <h3>2️⃣ 2-Byte Instructions</h3>
+        <p>Opcode in byte 1, then an <em>8-bit immediate value</em> or port address in byte 2.</p>
+        <p>Examples: <span class="hl">MVI A, 32H</span> &nbsp; <span class="hl">ADI 01H</span> &nbsp; <span class="hl">IN 02</span> &nbsp; <span class="hl">OUT 05</span></p>
+        <div class="bytes-visual">
+          <div class="byte-box byte-opcode"><div class="byte-label">Byte 1</div><div class="byte-val">Opcode</div></div>
+          <div class="byte-box byte-operand"><div class="byte-label">Byte 2</div><div class="byte-val">8-bit Data</div></div>
+        </div>
+        <p style="margin-top:0.5rem; color: var(--muted); font-size:0.82rem;">F+R = 2 machine cycles, 4+3 = 7 T-states.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="concept-box" style="margin-top:1rem;">
+    <h3>3️⃣ 3-Byte Instructions</h3>
+    <p>Opcode in byte 1, then a <em>16-bit address</em> split into low byte (byte 2) and high byte (byte 3). 8085 is little-endian — low byte first!</p>
+    <p>Examples: <span class="hl">LXI B, 2010H</span> &nbsp; <span class="hl">JMP 3002H</span> &nbsp; <span class="hl">CALL 4060H</span> &nbsp; <span class="hl">LDA 1212H</span></p>
+    <div class="bytes-visual">
+      <div class="byte-box byte-opcode"><div class="byte-label">Byte 1</div><div class="byte-val">Opcode</div></div>
+      <div class="byte-box byte-addrlo"><div class="byte-label">Byte 2</div><div class="byte-val">Addr Low</div></div>
+      <div class="byte-box byte-addrhi"><div class="byte-label">Byte 3</div><div class="byte-val">Addr High</div></div>
+    </div>
+    <p style="margin-top:0.5rem; color: var(--muted); font-size:0.82rem;">Example: <span class="hl">LDA 2050H</span> → Byte1: LDA opcode, Byte2: <span class="hl2">50H</span> (low), Byte3: <span class="hl3">20H</span> (high)</p>
+  </div>
+
+  <hr class="sec-div">
+  <div class="sec-header">
+    <div class="sec-tag">Interactive</div>
+    <div class="sec-title">Decode Any Instruction</div>
+  </div>
+
+  <div class="concept-box">
+    <h3>🔍 Instruction Byte Explorer</h3>
+    <p>Click any instruction to see how it maps to bytes in memory:</p>
+    <div style="display:flex; gap:0.6rem; flex-wrap:wrap; margin-bottom:1.2rem;">
+      <button class="btn-sm btn-step" onclick="showInstrBytes('MOV B,A','1','Opcode encodes both src & dest. No extra bytes needed.','','','','')">MOV B,A</button>
+      <button class="btn-sm btn-step" onclick="showInstrBytes('MVI A,32H','2','Opcode = MVI A','32H = data','','','Load reg A with 32H')">MVI A,32H</button>
+      <button class="btn-sm btn-step" onclick="showInstrBytes('OUT 02H','2','Opcode = OUT','02H = port addr','','','Copy A to port 02H')">OUT 02H</button>
+      <button class="btn-sm btn-step" onclick="showInstrBytes('LDA 2050H','3','Opcode = LDA','50H = low byte','20H = high byte','','Load A from memory 2050H')">LDA 2050H</button>
+      <button class="btn-sm btn-step" onclick="showInstrBytes('JMP 3002H','3','Opcode = JMP','02H = low byte','30H = high byte','','Jump to address 3002H')">JMP 3002H</button>
+      <button class="btn-sm btn-step" onclick="showInstrBytes('CALL 4060H','3','Opcode = CALL','60H = low byte','40H = high byte','','Call subroutine at 4060H')">CALL 4060H</button>
+    </div>
+    <div id="instr-bytes-display" style="display:none;">
+      <div id="instr-bytes-title" style="font-weight:700; margin-bottom:0.8rem; font-size:1rem;"></div>
+      <div id="instr-bytes-boxes" class="bytes-visual"></div>
+      <p id="instr-bytes-desc" style="margin-top:0.8rem; font-size:0.85rem; color:var(--muted);"></p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ DATA TRANSFER ═══════════════════ -->
+<section id="datatransfer">
+  <div class="sec-header">
+    <div class="sec-tag">Category 1</div>
+    <div class="sec-title">Data Transfer Instructions</div>
+    <div class="sec-sub">Move data between registers, memory, and I/O ports. Key rule: <strong>Source data is NEVER modified</strong>. Flags are NOT affected.</div>
+  </div>
+
+  <div class="concept-box" style="border-left:3px solid var(--accent);">
+    <h3>💡 Quick Mental Map</h3>
+    <p>All "load" instructions bring data <em>into</em> the accumulator or registers. All "store" instructions push data <em>out</em>. MOV is register-to-register. For memory, H&L pair acts as a pointer.</p>
+    <p><strong>Pattern:</strong> <span class="hl">MOV</span>=reg-to-reg &nbsp;|&nbsp; <span class="hl">MVI</span>=immediate-to-reg &nbsp;|&nbsp; <span class="hl">LDA/STA</span>=direct memory (A only) &nbsp;|&nbsp; <span class="hl">LXI</span>=load 16-bit pair &nbsp;|&nbsp; <span class="hl">LDAX/STAX</span>=indirect via BC or DE</p>
+  </div>
+
+  <table class="instr-table" style="margin-top:1.5rem;">
+    <thead>
+      <tr>
+        <th>Instruction</th>
+        <th>Operation</th>
+        <th>Bytes</th>
+        <th>T-States</th>
+        <th>Note</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td class="mono">MOV B,C</td><td>B ← C</td><td><span class="badge badge-1">1</span></td><td>4T</td><td>Register to register</td></tr>
+      <tr><td class="mono">MOV B,M</td><td>B ← M[HL]</td><td><span class="badge badge-1">1</span></td><td>7T</td><td>Memory (HL pointer) to reg</td></tr>
+      <tr><td class="mono">MOV M,B</td><td>M[HL] ← B</td><td><span class="badge badge-1">1</span></td><td>7T</td><td>Reg to memory (HL pointer)</td></tr>
+      <tr><td class="mono">MVI B, 57H</td><td>B ← 57H</td><td><span class="badge badge-2">2</span></td><td>7T</td><td>Immediate load</td></tr>
+      <tr><td class="mono">LDA 2050H</td><td>A ← M[2050H]</td><td><span class="badge badge-3">3</span></td><td>13T</td><td>Direct: addr in instruction</td></tr>
+      <tr><td class="mono">STA 2050H</td><td>M[2050H] ← A</td><td><span class="badge badge-3">3</span></td><td>13T</td><td>Store A to memory directly</td></tr>
+      <tr><td class="mono">LDAX B</td><td>A ← M[BC]</td><td><span class="badge badge-1">1</span></td><td>7T</td><td>Indirect: addr in BC pair</td></tr>
+      <tr><td class="mono">STAX D</td><td>M[DE] ← A</td><td><span class="badge badge-1">1</span></td><td>7T</td><td>Indirect: addr in DE pair</td></tr>
+      <tr><td class="mono">LXI H, 2034H</td><td>HL ← 2034H</td><td><span class="badge badge-3">3</span></td><td>10T</td><td>Load 16-bit immediate to pair</td></tr>
+      <tr><td class="mono">LHLD 2050H</td><td>L←M[2050], H←M[2051]</td><td><span class="badge badge-3">3</span></td><td>16T</td><td>Load H&L direct from memory</td></tr>
+      <tr><td class="mono">SHLD 2050H</td><td>M[2050]←L, M[2051]←H</td><td><span class="badge badge-3">3</span></td><td>16T</td><td>Store H&L to memory</td></tr>
+      <tr><td class="mono">XCHG</td><td>HL ↔ DE</td><td><span class="badge badge-1">1</span></td><td>4T</td><td>Exchange HL and DE</td></tr>
+      <tr><td class="mono">PUSH B</td><td>Stack ← BC</td><td><span class="badge badge-1">1</span></td><td>12T</td><td>SP decrements twice</td></tr>
+      <tr><td class="mono">POP H</td><td>HL ← Stack</td><td><span class="badge badge-1">1</span></td><td>10T</td><td>SP increments twice</td></tr>
+      <tr><td class="mono">OUT 02H</td><td>Port[02] ← A</td><td><span class="badge badge-2">2</span></td><td>10T</td><td>Accumulator to I/O port</td></tr>
+      <tr><td class="mono">IN 02H</td><td>A ← Port[02]</td><td><span class="badge badge-2">2</span></td><td>10T</td><td>I/O port to accumulator</td></tr>
+    </tbody>
+  </table>
+
+  <hr class="sec-div">
+  <div class="concept-box">
+    <h3>📚 PUSH &amp; POP — Stack Operations Visualized</h3>
+    <p>The stack grows <strong>downward</strong> in memory. SP (Stack Pointer) always points to the TOP of stack.</p>
+    <div class="code-block">
+<span style="color:var(--muted)">; Before PUSH B: SP = 2100H, B=50H, C=60H</span>
+PUSH B
+<span style="color:var(--muted)">; Step 1: SP = SP-1 = 20FFH,  M[20FFH] = B (50H)</span>
+<span style="color:var(--muted)">; Step 2: SP = SP-1 = 20FEH,  M[20FEH] = C (60H)</span>
+<span style="color:var(--muted)">; After: SP = 20FEH</span>
+
+POP B
+<span style="color:var(--muted)">; Step 1: C = M[SP=20FEH] = 60H,  SP = SP+1 = 20FFH</span>
+<span style="color:var(--muted)">; Step 2: B = M[SP=20FFH] = 50H,  SP = SP+1 = 2100H</span>
+<span style="color:var(--muted)">; After: SP = 2100H, BC restored!</span>
+    </div>
+    <p>Think of PUSH as "saving" registers and POP as "restoring" them — used around subroutines to preserve register values.</p>
+  </div>
+</section>
+
+<!-- ═══════════════════ ARITHMETIC ═══════════════════ -->
+<section id="arithmetic">
+  <div class="sec-header">
+    <div class="sec-tag">Category 2</div>
+    <div class="sec-title">Arithmetic Instructions</div>
+    <div class="sec-sub">All arithmetic results go into the Accumulator (A). These instructions <strong>DO affect flags</strong> (S, Z, CY, AC, P).</div>
+  </div>
+
+  <div class="concept-box" style="border-left:3px solid var(--gold);">
+    <h3>💡 The One Rule: A is always the destination</h3>
+    <p><span class="hl">ADD B</span> means A = A + B. Not B = A + B. Not some third register. <strong>Always A.</strong></p>
+    <p>For 16-bit addition: <span class="hl">DAD B</span> means HL = HL + BC. HL is the 16-bit accumulator equivalent.</p>
+    <p>The "I" suffix = Immediate: <span class="hl">ADI 05H</span> = A + 05H. The "C" suffix = with Carry: <span class="hl">ADC B</span> = A + B + CY flag (for multi-byte addition).</p>
+  </div>
+
+  <div class="two-col">
+    <div>
+      <div class="accordion open">
+        <div class="accordion-head" onclick="toggleAccordion(this)">➕ Addition Instructions <span class="arr">▼</span></div>
+        <div class="accordion-body">
+          <table class="instr-table">
+            <tr><th>Instr</th><th>Operation</th><th>Use When</th></tr>
+            <tr><td class="mono">ADD R</td><td>A = A + R</td><td>Add register to A</td></tr>
+            <tr><td class="mono">ADD M</td><td>A = A + M[HL]</td><td>Add memory to A</td></tr>
+            <tr><td class="mono">ADI 05H</td><td>A = A + 05H</td><td>Add constant to A</td></tr>
+            <tr><td class="mono">ADC R</td><td>A = A+R+CY</td><td>Multi-byte add (upper byte)</td></tr>
+            <tr><td class="mono">ACI 05H</td><td>A = A+05H+CY</td><td>Multi-byte add with immediate</td></tr>
+            <tr><td class="mono">DAD B</td><td>HL = HL + BC</td><td>16-bit addition</td></tr>
+            <tr><td class="mono">INR B</td><td>B = B + 1</td><td>Increment any register</td></tr>
+            <tr><td class="mono">INX H</td><td>HL = HL + 1</td><td>Increment register pair</td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="accordion open">
+        <div class="accordion-head" onclick="toggleAccordion(this)">➖ Subtraction Instructions <span class="arr">▼</span></div>
+        <div class="accordion-body">
+          <table class="instr-table">
+            <tr><th>Instr</th><th>Operation</th><th>Use When</th></tr>
+            <tr><td class="mono">SUB R</td><td>A = A - R</td><td>Subtract register from A</td></tr>
+            <tr><td class="mono">SUB M</td><td>A = A - M[HL]</td><td>Subtract memory from A</td></tr>
+            <tr><td class="mono">SUI 05H</td><td>A = A - 05H</td><td>Subtract constant from A</td></tr>
+            <tr><td class="mono">SBB R</td><td>A = A-R-CY</td><td>Multi-byte subtract</td></tr>
+            <tr><td class="mono">SBI 05H</td><td>A = A-05H-CY</td><td>Multi-byte with immediate</td></tr>
+            <tr><td class="mono">DCR B</td><td>B = B - 1</td><td>Decrement any register</td></tr>
+            <tr><td class="mono">DCX H</td><td>HL = HL - 1</td><td>Decrement register pair</td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="sec-div">
+  <div class="concept-box">
+    <h3>🔢 DAA — Decimal Adjust Accumulator</h3>
+    <p>After adding two BCD numbers, the result might not be valid BCD. <span class="hl">DAA</span> fixes it automatically.</p>
+    <p><strong>Rule:</strong> If lower nibble &gt; 9 OR AC=1 → add 6 to lower nibble. If upper nibble &gt; 9 OR CY=1 → add 6 to upper nibble.</p>
+    <div class="code-block">
+<span style="color:var(--muted)">; Add BCD 29 + 18</span>
+MVI A, <span class="num">29H</span>     <span class="code-comment">; BCD 29</span>
+ADI <span class="num">18H</span>       <span class="code-comment">; Binary result: A = 41H (but BCD should be 47!)</span>
+DAA           <span class="code-comment">; Lower nibble 1 < 9, upper nibble 4+1=5? No...</span>
+              <span class="code-comment">; Wait: 29H+18H = 41H. Lower = 1, no AC, upper = 4, no CY</span>
+              <span class="code-comment">; Hmm. Try: 29+18=47 decimal. DAA: 41H → add 06H → 47H ✓</span>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ LOGICAL ═══════════════════ -->
+<section id="logical">
+  <div class="sec-header">
+    <div class="sec-tag">Category 3</div>
+    <div class="sec-title">Logical Instructions</div>
+    <div class="sec-sub">Bitwise operations and comparisons. All operate on the Accumulator. Results stored in A (except CMP which only sets flags).</div>
+  </div>
+
+  <div class="concept-box" style="border-left:3px solid var(--accent3);">
+    <h3>💡 3 Patterns to Remember</h3>
+    <p><strong>Masking with AND:</strong> Use <span class="hl">ANI 0FH</span> to keep only lower nibble. AND with 1 = keeps bit. AND with 0 = clears bit.</p>
+    <p><strong>Setting bits with OR:</strong> Use <span class="hl">ORI 80H</span> to set D7. OR with 1 = sets bit. OR with 0 = keeps bit.</p>
+    <p><strong>Toggling with XOR:</strong> Use <span class="hl">XRI FFH</span> to flip all bits (same as CMA). XOR with 1 = flips. XOR with 0 = keeps.</p>
+  </div>
+
+  <div class="two-col">
+    <div>
+      <table class="instr-table">
+        <thead><tr><th>Instruction</th><th>Operation</th><th>Flags</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">ANA B</td><td>A = A AND B</td><td>S,Z,P mod; CY=0, AC=1</td></tr>
+          <tr><td class="mono">ANI 0FH</td><td>A = A AND 0FH</td><td>Mask lower nibble</td></tr>
+          <tr><td class="mono">ORA B</td><td>A = A OR B</td><td>S,Z,P mod; CY=0, AC=0</td></tr>
+          <tr><td class="mono">ORI 80H</td><td>A = A OR 80H</td><td>Set D7 bit</td></tr>
+          <tr><td class="mono">XRA B</td><td>A = A XOR B</td><td>S,Z,P mod; CY=0, AC=0</td></tr>
+          <tr><td class="mono">XRI FFH</td><td>A = A XOR FF</td><td>Flip all bits</td></tr>
+          <tr><td class="mono">CMA</td><td>A = NOT A</td><td>No flags affected!</td></tr>
+          <tr><td class="mono">STC</td><td>CY = 1</td><td>Sets carry flag</td></tr>
+          <tr><td class="mono">CMC</td><td>CY = NOT CY</td><td>Flips carry flag</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div>
+      <div class="concept-box">
+        <h3>🔍 CMP vs CPI — Comparison Instructions</h3>
+        <p>These are crucial for conditional jumps. They subtract but <em>don't save the result</em> — only set flags.</p>
+        <div class="code-block">
+CMP B   <span class="code-comment">; Compare A with B (A - B, flags only)</span>
+<span class="code-comment">; if A < B  → CY = 1</span>
+<span class="code-comment">; if A = B  → Z = 1</span>
+<span class="code-comment">; if A > B  → CY=0, Z=0</span>
+
+CPI 50H <span class="code-comment">; Compare A with 50H directly</span>
+JZ EQUAL   <span class="code-comment">; Jump if equal (Z=1)</span>
+JC LESS    <span class="code-comment">; Jump if A < 50H (CY=1)</span>
+        </div>
+        <p style="margin-top:0.8rem; color:var(--muted); font-size:0.85rem;">CMP/CPI + Jump = if-else logic in 8085!</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="concept-box" style="margin-top:1rem;">
+    <h3>🎭 Practical Bit Manipulation Examples</h3>
+    <div class="code-block">
+<span class="code-comment">; Check if a number is ODD (test bit D0)</span>
+ANI <span class="num">01H</span>      <span class="code-comment">; A AND 00000001 — isolates bit 0</span>
+JNZ ODD_LABEL <span class="code-comment">; if result ≠ 0, D0=1, number is odd</span>
+
+<span class="code-comment">; Count 1s in a byte (used in Program 12)</span>
+RAR          <span class="code-comment">; rotate right: bit 0 goes to CY flag</span>
+JNC SKIP     <span class="code-comment">; if CY=0, bit was 0, skip counting</span>
+INR B        <span class="code-comment">; if CY=1, bit was 1, increment count</span>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ BRANCHING ═══════════════════ -->
+<section id="branch">
+  <div class="sec-header">
+    <div class="sec-tag">Category 4</div>
+    <div class="sec-title">Branch Instructions</div>
+    <div class="sec-sub">Control program flow. JMP/CALL/RET with optional flag conditions. This is how 8085 implements if/else, loops, and functions.</div>
+  </div>
+
+  <div class="concept-box" style="border-left:3px solid var(--accent2);">
+    <h3>💡 The Big Picture: Flags → Conditions → Jumps</h3>
+    <p>Every conditional instruction has a letter code: <span class="hl">C</span>=Carry, <span class="hl">NC</span>=No Carry, <span class="hl">Z</span>=Zero, <span class="hl">NZ</span>=Not Zero, <span class="hl">P</span>=Positive, <span class="hl">M</span>=Minus, <span class="hl">PE</span>=Parity Even, <span class="hl">PO</span>=Parity Odd.</p>
+    <p>Same letter codes apply to J (Jump), C (Call), and R (Return). So <span class="hl">JZ</span>, <span class="hl">CZ</span>, <span class="hl">RZ</span> all check the same Z flag.</p>
+  </div>
+
+  <div class="two-col">
+    <div>
+      <div class="concept-box">
+        <h3>🔀 JMP — Unconditional Jump</h3>
+        <p>Always jumps. PC ← address in instruction.</p>
+        <div class="code-block">
+JMP <span class="num">2050H</span>  <span class="code-comment">; PC = 2050H, next fetch from there</span>
+
+<span class="code-comment">; Infinite loop:</span>
+START: MVI A, <span class="num">00H</span>
+       INR A
+       JMP START  <span class="code-comment">; loops forever</span>
+        </div>
+      </div>
+      <div class="concept-box" style="margin-top:1rem;">
+        <h3>📞 CALL &amp; RET — Subroutines</h3>
+        <p><span class="hl">CALL addr</span>: Pushes return address (next PC) onto stack, then jumps to addr.</p>
+        <p><span class="hl">RET</span>: Pops return address from stack, jumps back.</p>
+        <div class="code-block">
+CALL <span class="num">ADD1</span>   <span class="code-comment">; save PC on stack, jump to ADD1</span>
+... <span class="code-comment">; execution continues here after RET</span>
+
+ADD1: ADD B   <span class="code-comment">; subroutine body</span>
+      RET     <span class="code-comment">; pop saved PC, return to caller</span>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="concept-box">
+        <h3>🎯 Conditional Jumps — The Flag Table</h3>
+        <table class="instr-table">
+          <tr><th>Instruction</th><th>Condition</th><th>Flag</th></tr>
+          <tr><td class="mono">JZ / CZ / RZ</td><td>Zero</td><td>Z = 1</td></tr>
+          <tr><td class="mono">JNZ / CNZ / RNZ</td><td>Not Zero</td><td>Z = 0</td></tr>
+          <tr><td class="mono">JC / CC / RC</td><td>Carry</td><td>CY = 1</td></tr>
+          <tr><td class="mono">JNC / CNC / RNC</td><td>No Carry</td><td>CY = 0</td></tr>
+          <tr><td class="mono">JP / CP / RP</td><td>Positive</td><td>S = 0</td></tr>
+          <tr><td class="mono">JM / CM / RM</td><td>Minus</td><td>S = 1</td></tr>
+          <tr><td class="mono">JPE / CPE / RPE</td><td>Parity Even</td><td>P = 1</td></tr>
+          <tr><td class="mono">JPO / CPO / RPO</td><td>Parity Odd</td><td>P = 0</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <hr class="sec-div">
+  <div class="concept-box">
+    <h3>🔄 Loops in 8085 — The Standard Pattern</h3>
+    <p>Loops use a counter register (usually C or B) + DCR + JNZ:</p>
+    <div class="code-block">
+MVI C, <span class="num">0AH</span>    <span class="code-comment">; count = 10 (0AH)</span>
+LOOP: <span class="code-comment">; ... do something ...</span>
+      DCR C      <span class="code-comment">; C = C - 1  (sets Z flag when C reaches 0)</span>
+      JNZ LOOP   <span class="code-comment">; if C ≠ 0, repeat</span>
+<span class="code-comment">; After loop: C = 00H, executed body 10 times</span>
+    </div>
+    <p>This is <em>exactly</em> how Programs 16, 17, 18, 19, 20 in Unit 5 work — they all use this pattern!</p>
+  </div>
+
+  <div class="concept-box" style="margin-top:1rem;">
+    <h3>⚡ RST — Restart Instructions</h3>
+    <p>Like CALL but jumps to a <em>fixed</em> predefined address. Used for interrupt service routines.</p>
+    <table class="instr-table">
+      <tr><th>Instruction</th><th>Jumps to</th><th>Instruction</th><th>Jumps to</th></tr>
+      <tr><td class="mono">RST 0</td><td>0000H</td><td class="mono">RST 5</td><td>0028H</td></tr>
+      <tr><td class="mono">RST 1</td><td>0008H</td><td class="mono">RST 6</td><td>0030H</td></tr>
+      <tr><td class="mono">RST 2</td><td>0010H</td><td class="mono">RST 7</td><td>0038H</td></tr>
+      <tr><td class="mono">RST 5.5</td><td>002CH</td><td class="mono">RST 6.5</td><td>0034H</td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- ═══════════════════ ADDRESSING MODES ═══════════════════ -->
+<section id="addressing">
+  <div class="sec-header">
+    <div class="sec-tag">Core Concept #2</div>
+    <div class="sec-title">5 Addressing Modes</div>
+    <div class="sec-sub">Every instruction needs to know <em>where</em> its data is. There are exactly 5 ways to specify this. Master these and instruction names become obvious.</div>
+  </div>
+
+  <div class="concept-box" style="border-left:3px solid var(--accent2);">
+    <h3>💡 The "Where is the data?" Framework</h3>
+    <p>When you write an instruction, the CPU needs to find the operand. It can be: <em>baked into the instruction itself</em>, <em>at a specific memory address</em>, <em>in a register</em>, <em>pointed to by a register pair</em>, or <em>implied by the opcode</em>.</p>
+  </div>
+
+  <div class="addr-demo">
+    <div class="addr-row">
+      <div class="addr-mode">1. Immediate</div>
+      <div class="addr-arrow">→</div>
+      <div class="addr-ex">MVI B, 20H &nbsp; LXI D, 1000H &nbsp; ADI 05H</div>
+      <div class="addr-desc">Data is IN the instruction bytes</div>
+    </div>
+    <div class="addr-row">
+      <div class="addr-mode">2. Direct</div>
+      <div class="addr-arrow">→</div>
+      <div class="addr-ex">LDA 2000H &nbsp; STA 2050H &nbsp; IN 08H</div>
+      <div class="addr-desc">Address is IN the instruction bytes</div>
+    </div>
+    <div class="addr-row">
+      <div class="addr-mode">3. Register</div>
+      <div class="addr-arrow">→</div>
+      <div class="addr-ex">MOV A, B &nbsp; ADD B &nbsp; DCR C</div>
+      <div class="addr-desc">Data is in a register</div>
+    </div>
+    <div class="addr-row">
+      <div class="addr-mode">4. Indirect</div>
+      <div class="addr-arrow">→</div>
+      <div class="addr-ex">LDAX D &nbsp; STAX B &nbsp; MOV A,M</div>
+      <div class="addr-desc">Register pair holds the memory address</div>
+    </div>
+    <div class="addr-row">
+      <div class="addr-mode">5. Implicit</div>
+      <div class="addr-arrow">→</div>
+      <div class="addr-ex">RAL &nbsp; XCHG &nbsp; CMA &nbsp; NOP</div>
+      <div class="addr-desc">Operand is implied by opcode itself</div>
+    </div>
+  </div>
+
+  <hr class="sec-div">
+  <div class="concept-box">
+    <h3>🧩 Spot the Addressing Mode</h3>
+    <p>Click each instruction to see which addressing mode it uses:</p>
+    <div style="display:flex; gap:0.6rem; flex-wrap:wrap; margin-bottom:1rem;">
+      <button class="btn-sm btn-step" onclick="showAddrMode('LDAX D', 'Register Indirect', 'The address of the operand is in register pair DE. The CPU uses the value in DE as the memory address to read from.')">LDAX D</button>
+      <button class="btn-sm btn-step" onclick="showAddrMode('MVI A, 55H', 'Immediate', 'The data (55H) is directly embedded as the 2nd byte of the instruction. No memory fetch needed for the operand.')">MVI A, 55H</button>
+      <button class="btn-sm btn-step" onclick="showAddrMode('MOV B, C', 'Register', 'Both source (C) and destination (B) are registers. Data flows register-to-register. Very fast — 1 machine cycle.')">MOV B, C</button>
+      <button class="btn-sm btn-step" onclick="showAddrMode('LDA 2050H', 'Direct', 'The 16-bit address (2050H) is directly given in bytes 2 and 3 of the instruction. CPU goes directly to that address.')">LDA 2050H</button>
+      <button class="btn-sm btn-step" onclick="showAddrMode('RLC', 'Implicit', 'No operand needed — the opcode itself implies the accumulator is the target. The operation is completely self-contained.')">RLC</button>
+      <button class="btn-sm btn-step" onclick="showAddrMode('MOV A, M', 'Register Indirect', 'M means Memory at address [HL]. The HL register pair holds the address — you are indirectly pointing to memory.')">MOV A, M</button>
+    </div>
+    <div id="addr-mode-result" style="display:none; padding:1rem 1.2rem; background:var(--surface2); border:1px solid var(--accent); border-radius:8px;">
+      <div id="addr-mode-instr" style="font-family:'Space Mono',monospace; color:var(--accent); font-size:1rem; font-weight:700; margin-bottom:0.5rem;"></div>
+      <div id="addr-mode-name" style="color:var(--accent2); font-weight:800; margin-bottom:0.4rem;"></div>
+      <div id="addr-mode-desc" style="color:var(--muted); font-size:0.87rem; line-height:1.6;"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ ROTATE ═══════════════════ -->
+<section id="rotate">
+  <div class="sec-header">
+    <div class="sec-tag">Special Topic</div>
+    <div class="sec-title">Rotate Instructions</div>
+    <div class="sec-sub">Shift bits left or right in the Accumulator. Critical for bit manipulation, serial I/O, and counting 1s in a byte.</div>
+  </div>
+
+  <div class="concept-box" style="border-left:3px solid var(--accent);">
+    <h3>💡 Two Types — With or Without Carry</h3>
+    <p><strong>Without Carry (RLC, RRC):</strong> The bit that falls off one end wraps around to the other end AND copies into CY.</p>
+    <p><strong>Through Carry (RAL, RAR):</strong> The CY flag becomes part of the rotation — it acts as a 9th bit. Useful for multi-byte shifts.</p>
+  </div>
+
+  <div id="rotate-demo" style="margin-top:1.5rem;">
+    <div class="rotate-demo">
+      <div class="bits-label" style="margin-bottom:0.5rem; font-size:0.8rem; color:var(--accent);">Accumulator Value — Click a rotation to see it in action</div>
+      <div class="bits-row" id="bits-display">
+        <!-- filled by JS -->
+      </div>
+      <div class="bits-label" id="bits-hex" style="margin-top:0.5rem; font-size:0.9rem; color:var(--gold);"></div>
+      <div class="rot-controls">
+        <button class="btn-sm btn-step" onclick="doRotate('RLC')">RLC ←</button>
+        <button class="btn-sm btn-step" onclick="doRotate('RRC')">RRC →</button>
+        <button class="btn-sm btn-run" onclick="doRotate('RAL')">RAL ← (thru CY)</button>
+        <button class="btn-sm btn-run" onclick="doRotate('RAR')">RAR → (thru CY)</button>
+        <button class="btn-sm btn-reset" onclick="resetRotate()">Reset</button>
+      </div>
+      <div id="rotate-log" style="margin-top:0.8rem; text-align:center; font-family:'Space Mono',monospace; font-size:0.78rem; color:var(--muted); min-height:1.5rem;"></div>
+    </div>
+  </div>
+
+  <hr class="sec-div">
+  <div class="two-col">
+    <div class="concept-box">
+      <h3>RLC — Rotate Left (no carry)</h3>
+      <p>D7 → D0 (wraps) and D7 → CY</p>
+      <div class="code-block">
+<span class="code-comment">; Before: A = A8H = 1010 1000, CY = ?</span>
+RLC
+<span class="code-comment">; After:  A = 51H = 0101 0001, CY = 1</span>
+<span class="code-comment">; D7(1) → CY, all bits shifted left, D7→D0</span>
+      </div>
+    </div>
+    <div class="concept-box">
+      <h3>RRC — Rotate Right (no carry)</h3>
+      <p>D0 → D7 (wraps) and D0 → CY</p>
+      <div class="code-block">
+<span class="code-comment">; Before: A = A8H = 1010 1000, CY = ?</span>
+RRC
+<span class="code-comment">; After:  A = 54H = 0101 0100, CY = 0</span>
+<span class="code-comment">; D0(0) → CY, all bits shifted right, D0→D7</span>
+      </div>
+    </div>
+    <div class="concept-box">
+      <h3>RAL — Rotate Left Through CY</h3>
+      <p>CY → D0, D7 → CY (9-bit rotation)</p>
+      <div class="code-block">
+<span class="code-comment">; Before: A = A8H, CY = 0</span>
+RAL
+<span class="code-comment">; After:  A = 50H = 0101 0000, CY = 1</span>
+<span class="code-comment">; D7(1) → CY(new), old CY(0) → D0</span>
+      </div>
+    </div>
+    <div class="concept-box">
+      <h3>RAR — Rotate Right Through CY</h3>
+      <p>CY → D7, D0 → CY (9-bit rotation)</p>
+      <div class="code-block">
+<span class="code-comment">; Before: A = A8H, CY = 1</span>
+RAR
+<span class="code-comment">; After:  A = D4H = 1101 0100, CY = 0</span>
+<span class="code-comment">; D0(0) → CY(new), old CY(1) → D7</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="concept-box" style="margin-top:1rem;">
+    <h3>🔬 Practical: Count 1s using RAR (Program 12)</h3>
+    <div class="code-block">
+MVI B, <span class="num">00H</span>     <span class="code-comment">; B = count of 1 bits</span>
+MVI C, <span class="num">08H</span>     <span class="code-comment">; C = 8 (loop 8 times, for 8 bits)</span>
+MOV A, D       <span class="code-comment">; A = number to analyze</span>
+BACK: RAR      <span class="code-comment">; rotate right — bit 0 goes to CY flag</span>
+      JNC SKIP <span class="code-comment">; if CY=0, this bit was 0, skip</span>
+      INR B    <span class="code-comment">; if CY=1, this bit was 1, count it</span>
+SKIP: DCR C    <span class="code-comment">; loop counter--</span>
+      JNZ BACK <span class="code-comment">; repeat for all 8 bits</span>
+HLT
+    </div>
+    <p style="color:var(--muted); font-size:0.85rem; margin-top:0.5rem;">Each RAR extracts the LSB into CY. The JNC checks it. Loop runs 8 times for 8 bits. Elegant!</p>
+  </div>
+</section>
+
+<!-- ═══════════════════ SIMULATOR ═══════════════════ -->
+<section id="simulator">
+  <div class="sec-header">
+    <div class="sec-tag">Interactive</div>
+    <div class="sec-title">Mini 8085 Simulator</div>
+    <div class="sec-sub">Write programs and step through them to watch registers change. Supports core instructions. Load an example or write your own.</div>
+  </div>
+
+  <div style="display:flex; gap:0.6rem; flex-wrap:wrap; margin-bottom:1.2rem;">
+    <button class="btn-sm btn-step" onclick="loadExample('exchange')">Load: Exchange 2 bytes</button>
+    <button class="btn-sm btn-step" onclick="loadExample('add')">Load: Add two numbers</button>
+    <button class="btn-sm btn-step" onclick="loadExample('count')">Load: Count with loop</button>
+    <button class="btn-sm btn-step" onclick="loadExample('flags')">Load: Flag demo</button>
+  </div>
+
+  <div class="sim-container">
+    <div>
+      <div class="sim-panel sim-code">
+        <h4>Program Editor</h4>
+        <textarea id="sim-input" placeholder="Type 8085 instructions here...
+One per line. Example:
+MVI A, 05H
+MVI B, 03H
+ADD B
+HLT"></textarea>
+        <div class="sim-controls">
+          <button class="btn-sm btn-run" onclick="simRun()">▶ Run All</button>
+          <button class="btn-sm btn-step" onclick="simStep()">⏭ Step</button>
+          <button class="btn-sm btn-reset" onclick="simReset()">↺ Reset</button>
+        </div>
+        <div class="sim-log" id="sim-log"><span class="log-info">Ready. Load an example or write your own.</span></div>
+      </div>
+    </div>
+    <div>
+      <div class="sim-panel">
+        <h4>Registers</h4>
+        <div class="reg-grid" id="reg-display"></div>
+        <div style="margin-top:1rem;">
+          <div style="font-size:0.7rem; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); margin-bottom:0.5rem;">FLAGS</div>
+          <div class="flags-row" id="flags-display"></div>
+        </div>
+        <div style="margin-top:1rem; font-family:'Space Mono',monospace; font-size:0.75rem; color:var(--muted);">
+          Current Line: <span id="sim-pc" style="color:var(--accent);">—</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="concept-box" style="margin-top:1rem;">
+    <h3>📖 Supported Instructions</h3>
+    <p style="color:var(--muted); font-size:0.85rem;">MVI r,data &nbsp;|&nbsp; MOV r1,r2 &nbsp;|&nbsp; ADD r &nbsp;|&nbsp; SUB r &nbsp;|&nbsp; ADI data &nbsp;|&nbsp; SUI data &nbsp;|&nbsp; INR r &nbsp;|&nbsp; DCR r &nbsp;|&nbsp; CMP r &nbsp;|&nbsp; CPI data &nbsp;|&nbsp; ANA r &nbsp;|&nbsp; ORA r &nbsp;|&nbsp; XRA r &nbsp;|&nbsp; ANI data &nbsp;|&nbsp; ORI data &nbsp;|&nbsp; XRI data &nbsp;|&nbsp; RLC &nbsp;|&nbsp; RRC &nbsp;|&nbsp; CMA &nbsp;|&nbsp; HLT &nbsp;|&nbsp; NOP &nbsp;|&nbsp; JMP label &nbsp;|&nbsp; JZ label &nbsp;|&nbsp; JNZ label &nbsp;|&nbsp; JC label &nbsp;|&nbsp; JNC label</p>
+    <p style="color:var(--muted); font-size:0.82rem; margin-top:0.5rem;">Use hex values like <span class="hl">05H</span> or <span class="hl">0x05</span> or decimal <span class="hl">5</span>. Labels: write <span class="hl">LOOP:</span> to define, then <span class="hl">JNZ LOOP</span> to jump to it.</p>
+  </div>
+</section>
+
+<!-- ═══════════════════ QUIZ ═══════════════════ -->
+<section id="quiz">
+  <div class="sec-header">
+    <div class="sec-tag">Self-Test</div>
+    <div class="sec-title">Quiz — 10 Questions</div>
+    <div class="sec-sub">These test understanding, not memorization. Each answer comes with an explanation.</div>
+  </div>
+
+  <div class="quiz-card" id="quiz-container">
+    <div class="quiz-q" id="quiz-question"></div>
+    <div class="quiz-options" id="quiz-options"></div>
+    <div class="quiz-feedback" id="quiz-feedback"></div>
+    <div class="quiz-nav">
+      <button class="btn-sm btn-step" id="quiz-next-btn" onclick="nextQuestion()" style="display:none;">Next Question →</button>
+      <div class="quiz-progress" id="quiz-progress"></div>
+    </div>
+  </div>
+  <div id="quiz-score" style="display:none;" class="concept-box" style="margin-top:1rem;">
+    <h3>🎉 Quiz Complete!</h3>
+    <div id="quiz-score-text" style="font-size:1.2rem; font-weight:800; color:var(--accent); margin:0.5rem 0;"></div>
+    <button class="btn-sm btn-step" onclick="startQuiz()" style="margin-top:0.8rem;">Retry Quiz</button>
+  </div>
+</section>
+
+<!-- ═══════════════════ CHEAT SHEET ═══════════════════ -->
+<section id="cheatsheet">
+  <div class="sec-header">
+    <div class="sec-tag">Quick Reference</div>
+    <div class="sec-title">Complete Cheat Sheet</div>
+    <div class="sec-sub">All major 8085 instructions at a glance. Tags: <span class="tag tag-dt">DT</span>=Data Transfer <span class="tag tag-ar">AR</span>=Arithmetic <span class="tag tag-lo">LO</span>=Logical <span class="tag tag-br">BR</span>=Branch <span class="tag tag-ct">CT</span>=Control</div>
+  </div>
+
+  <input type="text" id="cheat-search" placeholder="🔍 Search instructions..." oninput="filterCheat(this.value)"
+    style="width:100%; padding:0.8rem 1rem; background:var(--surface); border:1px solid var(--border); border-radius:8px; color:var(--text); font-family:'Space Mono',monospace; font-size:0.85rem; outline:none; margin-bottom:1.5rem; transition:border-color 0.2s;"
+    onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'">
+
+  <div class="cheat-grid" id="cheat-grid"></div>
+</section>
+
+<script>
+// ═══════ NAVIGATION ═══════
+function showSection(id) {
+  document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  const tabs = document.querySelectorAll('.nav-tab');
+  const map = ['home','bytes','datatransfer','arithmetic','logical','branch','addressing','rotate','simulator','quiz','cheatsheet'];
+  const i = map.indexOf(id);
+  if (i >= 0) tabs[i].classList.add('active');
+  window.scrollTo(0, 0);
+  if (id === 'quiz') startQuiz();
+  if (id === 'cheatsheet') buildCheatSheet();
+  if (id === 'rotate') initRotate();
+  if (id === 'simulator') initSim();
+}
+
+// ═══════ ACCORDION ═══════
+function toggleAccordion(head) {
+  head.parentElement.classList.toggle('open');
+}
+
+// ═══════ BYTES EXPLORER ═══════
+function showInstrBytes(instr, bytes, b1, b2, b3, b4, desc) {
+  const display = document.getElementById('instr-bytes-display');
+  const title = document.getElementById('instr-bytes-title');
+  const boxes = document.getElementById('instr-bytes-boxes');
+  const descEl = document.getElementById('instr-bytes-desc');
+
+  display.style.display = 'block';
+  title.textContent = instr + ' — ' + bytes + '-Byte Instruction';
+
+  let html = `<div class="byte-box byte-opcode"><div class="byte-label">Byte 1</div><div class="byte-val">${b1}</div></div>`;
+  if (b2) html += `<div class="byte-box byte-operand"><div class="byte-label">Byte 2</div><div class="byte-val">${b2}</div></div>`;
+  if (b3) html += `<div class="byte-box byte-addrlo"><div class="byte-label">Byte 3 (lo)</div><div class="byte-val">${b3}</div></div>`;
+  boxes.innerHTML = html;
+  descEl.textContent = desc;
+}
+
+// ═══════ ADDRESSING MODE ═══════
+function showAddrMode(instr, mode, desc) {
+  const el = document.getElementById('addr-mode-result');
+  el.style.display = 'block';
+  document.getElementById('addr-mode-instr').textContent = instr;
+  document.getElementById('addr-mode-name').textContent = mode + ' Addressing Mode';
+  document.getElementById('addr-mode-desc').textContent = desc;
+}
+
+// ═══════ ROTATE SIMULATOR ═══════
+let rotAcc = 0xA8;
+let rotCY = 0;
+
+function initRotate() {
+  renderBits();
+}
+
+function renderBits() {
+  const d = document.getElementById('bits-display');
+  if (!d) return;
+  let html = `<div class="bit-box ${rotCY ? 'one bit-cy' : 'bit-cy'}">${rotCY}</div>`;
+  html += `<span class="bit-arrow">|</span>`;
+  for (let i = 7; i >= 0; i--) {
+    const b = (rotAcc >> i) & 1;
+    html += `<div class="bit-box ${b ? 'one' : 'zero'}">${b}</div>`;
+  }
+  d.innerHTML = html;
+  document.getElementById('bits-hex').textContent = 'A = 0x' + rotAcc.toString(16).toUpperCase().padStart(2,'0') + '  CY = ' + rotCY;
+}
+
+function doRotate(op) {
+  let log = '';
+  const oldA = rotAcc;
+  const oldCY = rotCY;
+  if (op === 'RLC') {
+    const d7 = (rotAcc >> 7) & 1;
+    rotAcc = ((rotAcc << 1) | d7) & 0xFF;
+    rotCY = d7;
+    log = `RLC: D7(${d7}) → CY and → D0. A: ${hex(oldA)} → ${hex(rotAcc)}`;
+  } else if (op === 'RRC') {
+    const d0 = rotAcc & 1;
+    rotAcc = ((rotAcc >> 1) | (d0 << 7)) & 0xFF;
+    rotCY = d0;
+    log = `RRC: D0(${d0}) → CY and → D7. A: ${hex(oldA)} → ${hex(rotAcc)}`;
+  } else if (op === 'RAL') {
+    const d7 = (rotAcc >> 7) & 1;
+    rotAcc = ((rotAcc << 1) | oldCY) & 0xFF;
+    rotCY = d7;
+    log = `RAL: D7(${d7}) → CY, old CY(${oldCY}) → D0. A: ${hex(oldA)} → ${hex(rotAcc)}`;
+  } else if (op === 'RAR') {
+    const d0 = rotAcc & 1;
+    rotAcc = ((rotAcc >> 1) | (oldCY << 7)) & 0xFF;
+    rotCY = d0;
+    log = `RAR: D0(${d0}) → CY, old CY(${oldCY}) → D7. A: ${hex(oldA)} → ${hex(rotAcc)}`;
+  }
+  renderBits();
+  document.getElementById('rotate-log').textContent = log;
+}
+
+function resetRotate() {
+  rotAcc = 0xA8; rotCY = 0;
+  renderBits();
+  document.getElementById('rotate-log').textContent = 'Reset to A = A8H, CY = 0';
+}
+
+function hex(v) { return '0x' + v.toString(16).toUpperCase().padStart(2,'0'); }
+
+// ═══════ SIMULATOR ═══════
+let simRegs = {};
+let simFlags = {};
+let simProgram = [];
+let simPC = 0;
+let simRunning = false;
+let simHalted = false;
+
+const REG_NAMES = ['A','B','C','D','E','H','L'];
+const FLAG_NAMES = ['Z','S','CY','AC','P'];
+
+function initSim() {
+  simReset();
+}
+
+function simReset() {
+  simRegs = { A:0, B:0, C:0, D:0, E:0, H:0, L:0, SP:0x2100 };
+  simFlags = { Z:0, S:0, CY:0, AC:0, P:0 };
+  simPC = 0; simHalted = false; simProgram = [];
+  renderRegs({});
+  renderFlags();
+  document.getElementById('sim-pc').textContent = '—';
+  addLog('info', 'Registers reset.');
+}
+
+function renderRegs(changed) {
+  const d = document.getElementById('reg-display');
+  if (!d) return;
+  let html = '';
+  for (const r of REG_NAMES) {
+    const ch = changed[r] ? 'changed' : '';
+    html += `<div class="reg-cell ${ch}"><span class="reg-name">${r}</span><span class="reg-value">${hex(simRegs[r])}</span></div>`;
+  }
+  html += `<div class="reg-cell"><span class="reg-name">SP</span><span class="reg-value">${hex(simRegs.SP)}</span></div>`;
+  d.innerHTML = html;
+}
+
+function renderFlags() {
+  const d = document.getElementById('flags-display');
+  if (!d) return;
+  let html = '';
+  for (const f of FLAG_NAMES) {
+    html += `<div class="flag-pill ${simFlags[f] ? 'set' : ''}">${f}=${simFlags[f]}</div>`;
+  }
+  d.innerHTML = html;
+}
+
+function addLog(type, msg) {
+  const log = document.getElementById('sim-log');
+  if (!log) return;
+  const span = document.createElement('div');
+  span.className = 'log-' + type;
+  span.textContent = msg;
+  log.appendChild(span);
+  log.scrollTop = log.scrollHeight;
+}
+
+function parseProgram() {
+  const src = document.getElementById('sim-input').value;
+  const lines = src.split('\n').map(l => l.trim()).filter(l => l && !l.startsWith(';'));
+  const labels = {};
+  const instrs = [];
+  // first pass: find labels
+  let idx = 0;
+  for (const line of lines) {
+    if (line.includes(':')) {
+      const parts = line.split(':');
+      labels[parts[0].trim().toUpperCase()] = idx;
+      const rest = parts.slice(1).join(':').trim();
+      if (rest) { instrs.push(rest); idx++; }
+    } else { instrs.push(line); idx++; }
+  }
+  return { instrs, labels };
+}
+
+function parseVal(s) {
+  if (!s) return 0;
+  s = s.trim().toUpperCase();
+  if (s.endsWith('H')) return parseInt(s.slice(0,-1), 16) || 0;
+  if (s.startsWith('0X')) return parseInt(s.slice(2), 16) || 0;
+  return parseInt(s, 10) || 0;
+}
+
+function updateFlags(val) {
+  val = val & 0xFF;
+  simFlags.Z = val === 0 ? 1 : 0;
+  simFlags.S = (val & 0x80) ? 1 : 0;
+  let p = val;
+  p ^= p >> 4; p ^= p >> 2; p ^= p >> 1;
+  simFlags.P = (~p & 1);
+}
+
+function execInstr(instr, labels) {
+  const orig = instr;
+  instr = instr.replace(/;.*$/, '').trim();
+  if (!instr) return 'nop';
+  const parts = instr.split(/[\s,]+/).filter(Boolean);
+  const op = parts[0].toUpperCase();
+  const changed = {};
+
+  const getR = (r) => { r = r.toUpperCase(); return simRegs[r] !== undefined ? simRegs[r] : 0; };
+  const setR = (r, v) => { r = r.toUpperCase(); simRegs[r] = v & 0xFF; changed[r] = true; };
+
+  switch(op) {
+    case 'NOP': return 'ok';
+    case 'HLT': return 'halt';
+    case 'MVI': {
+      const r = parts[1].toUpperCase(); const v = parseVal(parts[2]);
+      setR(r, v);
+      addLog('ok', `MVI: ${r} = ${hex(v)}`);
+      break;
+    }
+    case 'MOV': {
+      const dst = parts[1].toUpperCase(), src = parts[2].toUpperCase();
+      const v = src === 'M' ? 0 : getR(src);
+      setR(dst, v);
+      addLog('ok', `MOV: ${dst} ← ${src} (${hex(v)})`);
+      break;
+    }
+    case 'ADD': {
+      const r = parts[1].toUpperCase();
+      const v = getR(r);
+      const res = simRegs.A + v;
+      simFlags.CY = res > 0xFF ? 1 : 0;
+      simRegs.A = res & 0xFF; changed.A = true;
+      updateFlags(simRegs.A);
+      addLog('ok', `ADD: A = A + ${r} = ${hex(simRegs.A)}  CY=${simFlags.CY}`);
+      break;
+    }
+    case 'ADI': {
+      const v = parseVal(parts[1]);
+      const res = simRegs.A + v;
+      simFlags.CY = res > 0xFF ? 1 : 0;
+      simRegs.A = res & 0xFF; changed.A = true;
+      updateFlags(simRegs.A);
+      addLog('ok', `ADI: A = A + ${hex(v)} = ${hex(simRegs.A)}`);
+      break;
+    }
+    case 'SUB': {
+      const r = parts[1].toUpperCase();
+      const v = getR(r);
+      const res = simRegs.A - v;
+      simFlags.CY = res < 0 ? 1 : 0;
+      simRegs.A = res & 0xFF; changed.A = true;
+      updateFlags(simRegs.A);
+      addLog('ok', `SUB: A = A - ${r} = ${hex(simRegs.A)}  CY=${simFlags.CY}`);
+      break;
+    }
+    case 'SUI': {
+      const v = parseVal(parts[1]);
+      const res = simRegs.A - v;
+      simFlags.CY = res < 0 ? 1 : 0;
+      simRegs.A = res & 0xFF; changed.A = true;
+      updateFlags(simRegs.A);
+      addLog('ok', `SUI: A = A - ${hex(v)} = ${hex(simRegs.A)}`);
+      break;
+    }
+    case 'INR': {
+      const r = parts[1].toUpperCase();
+      simRegs[r] = (simRegs[r] + 1) & 0xFF; changed[r] = true;
+      updateFlags(simRegs[r]);
+      addLog('ok', `INR: ${r} = ${hex(simRegs[r])}`);
+      break;
+    }
+    case 'DCR': {
+      const r = parts[1].toUpperCase();
+      simRegs[r] = (simRegs[r] - 1) & 0xFF; changed[r] = true;
+      updateFlags(simRegs[r]);
+      addLog('ok', `DCR: ${r} = ${hex(simRegs[r])}`);
+      break;
+    }
+    case 'CMP': {
+      const r = parts[1].toUpperCase();
+      const v = getR(r);
+      const res = simRegs.A - v;
+      simFlags.CY = res < 0 ? 1 : 0;
+      updateFlags(res & 0xFF);
+      addLog('ok', `CMP: A(${hex(simRegs.A)}) vs ${r}(${hex(v)})  Z=${simFlags.Z}, CY=${simFlags.CY}`);
+      break;
+    }
+    case 'CPI': {
+      const v = parseVal(parts[1]);
+      const res = simRegs.A - v;
+      simFlags.CY = res < 0 ? 1 : 0;
+      updateFlags(res & 0xFF);
+      addLog('ok', `CPI: A(${hex(simRegs.A)}) vs ${hex(v)}  Z=${simFlags.Z}, CY=${simFlags.CY}`);
+      break;
+    }
+    case 'ANA': { const v = getR(parts[1]); simRegs.A &= v; changed.A=true; simFlags.CY=0; updateFlags(simRegs.A); addLog('ok',`ANA: A = ${hex(simRegs.A)}`); break; }
+    case 'ORA': { const v = getR(parts[1]); simRegs.A |= v; changed.A=true; simFlags.CY=0; updateFlags(simRegs.A); addLog('ok',`ORA: A = ${hex(simRegs.A)}`); break; }
+    case 'XRA': { const v = getR(parts[1]); simRegs.A ^= v; changed.A=true; simFlags.CY=0; updateFlags(simRegs.A); addLog('ok',`XRA: A = ${hex(simRegs.A)}`); break; }
+    case 'ANI': { const v = parseVal(parts[1]); simRegs.A &= v; changed.A=true; simFlags.CY=0; updateFlags(simRegs.A); addLog('ok',`ANI: A = ${hex(simRegs.A)}`); break; }
+    case 'ORI': { const v = parseVal(parts[1]); simRegs.A |= v; changed.A=true; simFlags.CY=0; updateFlags(simRegs.A); addLog('ok',`ORI: A = ${hex(simRegs.A)}`); break; }
+    case 'XRI': { const v = parseVal(parts[1]); simRegs.A ^= v; changed.A=true; simFlags.CY=0; updateFlags(simRegs.A); addLog('ok',`XRI: A = ${hex(simRegs.A)}`); break; }
+    case 'CMA': { simRegs.A = (~simRegs.A) & 0xFF; changed.A=true; addLog('ok',`CMA: A = ${hex(simRegs.A)}`); break; }
+    case 'RLC': {
+      const d7 = (simRegs.A >> 7) & 1;
+      simRegs.A = ((simRegs.A << 1) | d7) & 0xFF; changed.A=true;
+      simFlags.CY = d7;
+      addLog('ok', `RLC: A = ${hex(simRegs.A)}, CY = ${d7}`);
+      break;
+    }
+    case 'RRC': {
+      const d0 = simRegs.A & 1;
+      simRegs.A = ((simRegs.A >> 1) | (d0 << 7)) & 0xFF; changed.A=true;
+      simFlags.CY = d0;
+      addLog('ok', `RRC: A = ${hex(simRegs.A)}, CY = ${d0}`);
+      break;
+    }
+    case 'JMP': {
+      const lbl = parts[1].toUpperCase();
+      if (labels[lbl] !== undefined) { simPC = labels[lbl]; addLog('ok', `JMP → ${lbl} (line ${simPC})`); return 'jump'; }
+      addLog('err', `JMP: unknown label ${lbl}`); return 'err';
+    }
+    case 'JZ':  if (simFlags.Z)  { return doJump(parts[1], labels, 'JZ'); } else { addLog('info', `JZ: Z=0, no jump`); } break;
+    case 'JNZ': if (!simFlags.Z) { return doJump(parts[1], labels, 'JNZ'); } else { addLog('info', `JNZ: Z=1, no jump`); } break;
+    case 'JC':  if (simFlags.CY) { return doJump(parts[1], labels, 'JC'); } else { addLog('info', `JC: CY=0, no jump`); } break;
+    case 'JNC': if (!simFlags.CY){ return doJump(parts[1], labels, 'JNC'); } else { addLog('info', `JNC: CY=1, no jump`); } break;
+    case 'JP':  if (!simFlags.S) { return doJump(parts[1], labels, 'JP'); } else { addLog('info', `JP: S=1, no jump`); } break;
+    case 'JM':  if (simFlags.S)  { return doJump(parts[1], labels, 'JM'); } else { addLog('info', `JM: S=0, no jump`); } break;
+    default: addLog('err', `Unknown instruction: ${op}`); return 'err';
+  }
+  renderRegs(changed);
+  renderFlags();
+  return 'ok';
+}
+
+function doJump(lbl, labels, op) {
+  lbl = lbl.toUpperCase();
+  if (labels[lbl] !== undefined) { simPC = labels[lbl]; addLog('ok', `${op}: condition met → ${lbl} (line ${simPC})`); return 'jump'; }
+  addLog('err', `${op}: unknown label ${lbl}`); return 'err';
+}
+
+function simStep() {
+  if (simHalted) { addLog('err', 'Program halted. Press Reset.'); return; }
+  const { instrs, labels } = parseProgram();
+  if (simPC >= instrs.length) { addLog('info', 'End of program.'); return; }
+  const line = instrs[simPC];
+  document.getElementById('sim-pc').textContent = `Line ${simPC + 1}: ${line}`;
+  const result = execInstr(line, labels);
+  if (result !== 'jump') simPC++;
+  if (result === 'halt') { simHalted = true; addLog('ok', '✓ HLT reached. Program complete.'); }
+}
+
+function simRun() {
+  const { instrs, labels } = parseProgram();
+  simPC = 0; simHalted = false;
+  simRegs = { A:0, B:0, C:0, D:0, E:0, H:0, L:0, SP:0x2100 };
+  simFlags = { Z:0, S:0, CY:0, AC:0, P:0 };
+  renderRegs({});
+  document.getElementById('sim-log').innerHTML = '';
+  let steps = 0;
+  while (simPC < instrs.length && steps < 500) {
+    const line = instrs[simPC];
+    document.getElementById('sim-pc').textContent = `Line ${simPC + 1}: ${line}`;
+    const result = execInstr(line, labels);
+    if (result !== 'jump') simPC++;
+    if (result === 'halt') { simHalted = true; addLog('ok', '✓ Done.'); break; }
+    if (result === 'err') break;
+    steps++;
+  }
+  if (steps >= 500) addLog('err', 'Stopped: too many steps (infinite loop?)');
+}
+
+function loadExample(name) {
+  const examples = {
+    exchange: `; Exchange values in B and C using A\nMVI B, 55H\nMVI C, 99H\nMOV A, B\nMOV B, C\nMOV C, A\nHLT`,
+    add: `; Add 05H + 03H, result in A\nMVI A, 05H\nMVI B, 03H\nADD B\nHLT`,
+    count: `; Count down from 5 using loop\nMVI C, 05H\nMVI B, 00H\nLOOP: INR B\nDCR C\nJNZ LOOP\nHLT`,
+    flags: `; Demo: compare sets Z or CY flag\nMVI A, 50H\nMVI B, 50H\nCMP B\n; Z=1 means equal!\nMVI A, 30H\nCPI 50H\n; CY=1 means A < 50H\nHLT`
+  };
+  document.getElementById('sim-input').value = examples[name];
+  simReset();
+  addLog('info', 'Example loaded. Press ▶ Run or ⏭ Step.');
+}
+
+// ═══════ QUIZ ═══════
+const questions = [
+  {
+    q: "What is the addressing mode of the instruction: MOV A, M ?",
+    opts: ["Immediate", "Direct", "Register Indirect", "Register"],
+    ans: 2,
+    exp: "M means Memory at address pointed to by HL register pair. The address is indirectly given via a register — this is Register Indirect addressing mode."
+  },
+  {
+    q: "After executing 'MVI A, 05H' then 'ADI 03H', what is the value in the Accumulator?",
+    opts: ["05H", "03H", "08H", "02H"],
+    ans: 2,
+    exp: "ADI adds an immediate value to A. A = 05H + 03H = 08H. The result is always stored back in the Accumulator."
+  },
+  {
+    q: "Which instruction is used to compare register B with the Accumulator WITHOUT changing any register values?",
+    opts: ["SUB B", "CMP B", "ANA B", "XRA B"],
+    ans: 1,
+    exp: "CMP B performs A - B internally to set flags (Z, CY) but discards the result. The values in A and B are unchanged. This is how you implement 'if A == B' or 'if A > B'."
+  },
+  {
+    q: "How many bytes does the instruction 'LDA 2050H' occupy in memory?",
+    opts: ["1 byte", "2 bytes", "3 bytes", "4 bytes"],
+    ans: 2,
+    exp: "LDA needs: 1 byte for the LDA opcode, plus 2 bytes for the 16-bit address (50H low byte, 20H high byte) = 3 bytes total. All direct address instructions are 3 bytes."
+  },
+  {
+    q: "In a conditional loop 'DCR C / JNZ LOOP', when does the loop STOP?",
+    opts: ["When C > 0", "When C = 0 (Zero flag set)", "When carry flag is set", "After exactly 8 iterations always"],
+    ans: 1,
+    exp: "DCR C decrements C and sets Z=1 when C becomes 00H. JNZ jumps back ONLY when Z=0 (Not Zero). When Z=1 (C just became 0), JNZ does NOT jump, and execution falls through — loop ends."
+  },
+  {
+    q: "What does the instruction 'XCHG' do?",
+    opts: ["Exchanges A and B registers", "Exchanges HL with DE", "Exchanges HL with the stack top", "Exchanges BC and DE"],
+    ans: 1,
+    exp: "XCHG exchanges the H↔D and L↔E registers. After XCHG: H has old D, L has old E, D has old H, E has old L. For XTHL (exchanges HL with stack top)."
+  },
+  {
+    q: "After RLC on A = 10110000B, what is the new value of A and the CY flag?",
+    opts: ["A=01100001B, CY=1", "A=01011000B, CY=1", "A=00011011B, CY=0", "A=11000001B, CY=1"],
+    ans: 0,
+    exp: "RLC rotates left: each bit shifts left, D7 wraps to D0 AND copies to CY. D7=1, so CY=1. Bits shift: 10110000 → 01100000, then D7(1)→D0 → 01100001. CY=1."
+  },
+  {
+    q: "Which instruction pushes data ONTO the stack and which PULLS data OFF the stack?",
+    opts: ["PUSH stores, POP retrieves", "POP stores, PUSH retrieves", "Both store", "Both retrieve"],
+    ans: 0,
+    exp: "PUSH decrements SP twice and copies the register pair HIGH byte then LOW byte to the stack (saves registers). POP reads LOW then HIGH byte from stack and increments SP twice (restores registers)."
+  },
+  {
+    q: "What is the purpose of the DAA instruction?",
+    opts: ["Decrements accumulator", "Double-adds two registers", "Converts binary result to BCD after addition", "Sets all bits in A to 0"],
+    ans: 2,
+    exp: "DAA (Decimal Adjust Accumulator) is used after adding two BCD numbers. Binary addition may give invalid BCD results. DAA adds 6 to nibbles that are >9 or have carry, making the result valid BCD."
+  },
+  {
+    q: "In the instruction 'CALL 4060H', what happens to the Program Counter before jumping?",
+    opts: ["PC is reset to 0000H", "PC is saved onto the stack, then jumps to 4060H", "PC is ignored", "PC is copied to HL pair"],
+    ans: 1,
+    exp: "CALL saves the address of the NEXT instruction (current PC) onto the stack (push), then loads PC with 4060H to jump to the subroutine. RET later pops this saved address back to PC to return."
+  }
+];
+
+let curQ = 0, score = 0, answered = false;
+
+function startQuiz() {
+  curQ = 0; score = 0; answered = false;
+  document.getElementById('quiz-container').style.display = 'block';
+  document.getElementById('quiz-score').style.display = 'none';
+  showQuestion();
+}
+
+function showQuestion() {
+  const q = questions[curQ];
+  document.getElementById('quiz-question').textContent = `Q${curQ+1}. ${q.q}`;
+  document.getElementById('quiz-progress').textContent = `${curQ+1} / ${questions.length}  |  Score: ${score}`;
+  document.getElementById('quiz-next-btn').style.display = 'none';
+  document.getElementById('quiz-feedback').className = 'quiz-feedback';
+  document.getElementById('quiz-feedback').textContent = '';
+  answered = false;
+
+  let html = '';
+  q.opts.forEach((opt, i) => {
+    html += `<button class="quiz-opt" onclick="answerQ(${i})">${opt}</button>`;
+  });
+  document.getElementById('quiz-options').innerHTML = html;
+}
+
+function answerQ(i) {
+  if (answered) return;
+  answered = true;
+  const q = questions[curQ];
+  const opts = document.querySelectorAll('.quiz-opt');
+  opts.forEach(o => o.disabled = true);
+  opts[q.ans].classList.add('correct');
+
+  const fb = document.getElementById('quiz-feedback');
+  if (i === q.ans) {
+    score++;
+    opts[i].classList.add('correct');
+    fb.className = 'quiz-feedback correct show';
+    fb.textContent = '✓ Correct! ' + q.exp;
+  } else {
+    opts[i].classList.add('wrong');
+    fb.className = 'quiz-feedback wrong show';
+    fb.textContent = '✗ Not quite. ' + q.exp;
+  }
+  document.getElementById('quiz-progress').textContent = `${curQ+1} / ${questions.length}  |  Score: ${score}`;
+  document.getElementById('quiz-next-btn').style.display = 'inline-flex';
+}
+
+function nextQuestion() {
+  curQ++;
+  if (curQ >= questions.length) {
+    document.getElementById('quiz-container').style.display = 'none';
+    const scoreDiv = document.getElementById('quiz-score');
+    scoreDiv.style.display = 'block';
+    const pct = Math.round(score / questions.length * 100);
+    const emoji = pct === 100 ? '🏆' : pct >= 70 ? '🎯' : pct >= 50 ? '📚' : '💪';
+    document.getElementById('quiz-score-text').textContent = `${emoji} ${score} / ${questions.length} (${pct}%)`;
+  } else {
+    showQuestion();
+  }
+}
+
+// ═══════ CHEAT SHEET ═══════
+const cheatData = [
+  {i:'MOV r1,r2', d:'r1 ← r2', tag:'dt'},{i:'MVI r,data', d:'r ← data', tag:'dt'},
+  {i:'LDA addr', d:'A ← M[addr]', tag:'dt'},{i:'STA addr', d:'M[addr] ← A', tag:'dt'},
+  {i:'LDAX B/D', d:'A ← M[BC/DE]', tag:'dt'},{i:'STAX B/D', d:'M[BC/DE] ← A', tag:'dt'},
+  {i:'LXI rp,data', d:'rp ← 16-bit data', tag:'dt'},{i:'LHLD addr', d:'L←M[addr], H←M[addr+1]', tag:'dt'},
+  {i:'SHLD addr', d:'M[addr]←L, M[addr+1]←H', tag:'dt'},{i:'XCHG', d:'HL ↔ DE', tag:'dt'},
+  {i:'PUSH rp', d:'Stack ← rp (SP-=2)', tag:'dt'},{i:'POP rp', d:'rp ← Stack (SP+=2)', tag:'dt'},
+  {i:'IN port', d:'A ← Port[port]', tag:'dt'},{i:'OUT port', d:'Port[port] ← A', tag:'dt'},
+  {i:'SPHL', d:'SP ← HL', tag:'dt'},{i:'XTHL', d:'HL ↔ M[SP]', tag:'dt'},
+  {i:'ADD r/M', d:'A = A + r/M', tag:'ar'},{i:'ADC r/M', d:'A = A + r + CY', tag:'ar'},
+  {i:'ADI data', d:'A = A + data', tag:'ar'},{i:'ACI data', d:'A = A + data + CY', tag:'ar'},
+  {i:'SUB r/M', d:'A = A - r', tag:'ar'},{i:'SBB r/M', d:'A = A - r - CY', tag:'ar'},
+  {i:'SUI data', d:'A = A - data', tag:'ar'},{i:'SBI data', d:'A = A - data - CY', tag:'ar'},
+  {i:'DAD rp', d:'HL = HL + rp', tag:'ar'},{i:'INR r/M', d:'r = r + 1', tag:'ar'},
+  {i:'DCR r/M', d:'r = r - 1', tag:'ar'},{i:'INX rp', d:'rp = rp + 1', tag:'ar'},
+  {i:'DCX rp', d:'rp = rp - 1', tag:'ar'},{i:'DAA', d:'BCD adjust A', tag:'ar'},
+  {i:'ANA r/M', d:'A = A AND r', tag:'lo'},{i:'ANI data', d:'A = A AND data', tag:'lo'},
+  {i:'ORA r/M', d:'A = A OR r', tag:'lo'},{i:'ORI data', d:'A = A OR data', tag:'lo'},
+  {i:'XRA r/M', d:'A = A XOR r', tag:'lo'},{i:'XRI data', d:'A = A XOR data', tag:'lo'},
+  {i:'CMA', d:'A = NOT A', tag:'lo'},{i:'CMP r/M', d:'flags ← A - r', tag:'lo'},
+  {i:'CPI data', d:'flags ← A - data', tag:'lo'},{i:'STC', d:'CY = 1', tag:'lo'},
+  {i:'CMC', d:'CY = NOT CY', tag:'lo'},{i:'RLC', d:'Rotate A left, D7→CY→D0', tag:'lo'},
+  {i:'RRC', d:'Rotate A right, D0→CY→D7', tag:'lo'},{i:'RAL', d:'Rotate A left thru CY', tag:'lo'},
+  {i:'RAR', d:'Rotate A right thru CY', tag:'lo'},
+  {i:'JMP addr', d:'PC ← addr', tag:'br'},{i:'JZ/JNZ addr', d:'Jump if Z=1/0', tag:'br'},
+  {i:'JC/JNC addr', d:'Jump if CY=1/0', tag:'br'},{i:'JP/JM addr', d:'Jump if S=0/1', tag:'br'},
+  {i:'JPE/JPO addr', d:'Jump if P=1/0', tag:'br'},{i:'CALL addr', d:'Push PC, jump to addr', tag:'br'},
+  {i:'RET', d:'Pop PC, return', tag:'br'},{i:'RST 0-7', d:'Call fixed address', tag:'br'},
+  {i:'PCHL', d:'PC ← HL', tag:'br'},{i:'CC/CNC/CZ/CNZ', d:'Conditional CALL', tag:'br'},
+  {i:'RC/RNC/RZ/RNZ', d:'Conditional RET', tag:'br'},
+  {i:'NOP', d:'No operation (4T)', tag:'ct'},{i:'HLT', d:'Halt CPU', tag:'ct'},
+  {i:'DI', d:'Disable interrupts', tag:'ct'},{i:'EI', d:'Enable interrupts', tag:'ct'},
+  {i:'SIM', d:'Set interrupt mask / serial out', tag:'ct'},{i:'RIM', d:'Read interrupt mask / serial in', tag:'ct'},
+];
+
+function buildCheatSheet() {
+  renderCheat(cheatData);
+}
+
+function renderCheat(data) {
+  const g = document.getElementById('cheat-grid');
+  if (!g) return;
+  g.innerHTML = data.map(item => `
+    <div class="cheat-item" data-tag="${item.tag}">
+      <div class="ci">${item.i}</div>
+      <div class="cd"><span class="tag tag-${item.tag}">${item.tag.toUpperCase()}</span> ${item.d}</div>
+    </div>`).join('');
+}
+
+function filterCheat(q) {
+  if (!q) { renderCheat(cheatData); return; }
+  q = q.toLowerCase();
+  renderCheat(cheatData.filter(item => item.i.toLowerCase().includes(q) || item.d.toLowerCase().includes(q) || item.tag.includes(q)));
+}
+
+// ═══════ INIT ═══════
+initRotate();
+</script>
+</body>
+</html>

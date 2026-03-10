@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sujal</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0e11;
+    --surface: #13151a;
+    --surface2: #1a1d24;
+    --border: #222530;
+    --ink: #e8e6e1;
+    --muted: #5c5f6e;
+    --muted2: #8b8fa0;
+    --accent: #e8673a;
+    --accent2: #5b8dee;
+    --card: #111318;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Outfit', sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: radial-gradient(circle, rgba(255,255,255,0.032) 1px, transparent 1px);
+    background-size: 28px 28px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(ellipse 80% 60% at 50% -10%, rgba(232,103,58,0.07) 0%, transparent 65%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.3rem 3rem;
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    background: rgba(13,14,17,0.88);
+    backdrop-filter: blur(16px);
+    z-index: 100;
+  }
+
+  .nav-logo {
+    font-family: 'Instrument Serif', serif;
+    font-size: 1.3rem;
+    color: var(--ink);
+    text-decoration: none;
+    letter-spacing: -0.01em;
+  }
+  .nav-logo em { color: var(--accent); font-style: italic; }
+
+  .nav-links { display: flex; gap: 2rem; list-style: none; }
+  .nav-links a {
+    text-decoration: none;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--muted);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--ink); }
+  .nav-links a.active { color: var(--ink); border-bottom: 1.5px solid var(--accent); padding-bottom: 2px; }
+
+  .hero {
+    position: relative;
+    z-index: 1;
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 7rem 3rem 5rem;
+  }
+
+  .hero-eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--accent);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    margin-bottom: 1.4rem;
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+  }
+  .hero-eyebrow::before {
+    content: '';
+    width: 20px;
+    height: 1px;
+    background: var(--accent);
+    display: inline-block;
+  }
+
+  .hero h1 {
+    font-family: 'Instrument Serif', serif;
+    font-size: clamp(3rem, 6vw, 5rem);
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+    margin-bottom: 1.6rem;
+    color: var(--ink);
+  }
+  .hero h1 em { color: var(--accent); font-style: italic; }
+
+  .hero-desc {
+    font-size: 1rem;
+    color: var(--muted2);
+    line-height: 1.8;
+    max-width: 420px;
+    margin-bottom: 2.4rem;
+    font-weight: 300;
+  }
+
+  .hero-links { display: flex; gap: 0.8rem; flex-wrap: wrap; }
+
+  .btn-fill {
+    padding: 0.65rem 1.4rem;
+    border-radius: 100px;
+    font-size: 0.82rem;
+    font-weight: 500;
+    color: #fff;
+    background: var(--accent);
+    border: 1.5px solid var(--accent);
+    text-decoration: none;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+  .btn-fill:hover { background: #d45528; border-color: #d45528; transform: translateY(-1px); }
+
+  .btn-outline {
+    padding: 0.65rem 1.4rem;
+    border-radius: 100px;
+    font-size: 0.82rem;
+    font-weight: 500;
+    color: var(--muted2);
+    background: transparent;
+    border: 1.5px solid var(--border);
+    text-decoration: none;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+  .btn-outline:hover { border-color: var(--muted2); color: var(--ink); }
+
+  .divider {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    height: 1px;
+    background: var(--border);
+    max-width: 860px;
+    margin: 0 auto;
+  }
+
+  .section {
+    position: relative;
+    z-index: 1;
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 3.5rem 3rem;
+  }
+
+  .section-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 1.6rem;
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+  }
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  .featured-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 2rem 2.2rem;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 1.5rem;
+    align-items: center;
+    text-decoration: none;
+    color: inherit;
+    transition: all 0.25s;
+  }
+  .featured-card:hover {
+    border-color: var(--accent);
+    background: #141519;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  }
+
+  .fc-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.63rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.5rem;
+  }
+  .fc-title {
+    font-family: 'Instrument Serif', serif;
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+    letter-spacing: -0.01em;
+    color: var(--ink);
+  }
+  .fc-desc {
+    font-size: 0.86rem;
+    color: var(--muted2);
+    line-height: 1.65;
+    font-weight: 300;
+  }
+  .fc-arrow {
+    font-size: 1.4rem;
+    color: var(--border);
+    transition: all 0.2s;
+    flex-shrink: 0;
+  }
+  .featured-card:hover .fc-arrow { color: var(--accent); transform: translateX(4px); }
+
+  .post-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 0.8rem;
+  }
+
+  .post-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 11px;
+    padding: 1.3rem;
+    text-decoration: none;
+    color: inherit;
+    transition: all 0.2s;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .post-card:hover { border-color: var(--muted); transform: translateY(-1px); }
+  .post-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .post-title {
+    font-family: 'Instrument Serif', serif;
+    font-size: 1rem;
+    line-height: 1.35;
+    color: var(--ink);
+  }
+  .post-meta { font-size: 0.7rem; color: var(--muted); margin-top: auto; font-family: 'DM Mono', monospace; }
+  .coming-soon { opacity: 0.3; cursor: default; }
+  .coming-soon:hover { transform: none; border-color: var(--border); }
+  .pill {
+    display: inline-block;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.55rem;
+    padding: 0.1rem 0.4rem;
+    border-radius: 100px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--muted);
+  }
+
+  .about-strip {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.8rem 2.2rem;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 2rem;
+    align-items: center;
+  }
+  .about-strip p {
+    font-size: 0.88rem;
+    line-height: 1.75;
+    color: var(--muted2);
+    font-weight: 300;
+  }
+  .about-strip p strong { color: var(--ink); font-weight: 500; }
+  .as-link {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.73rem;
+    color: var(--ink);
+    text-decoration: none;
+    border: 1px solid var(--border);
+    padding: 0.5rem 1rem;
+    border-radius: 100px;
+    transition: all 0.2s;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+  .as-link:hover { border-color: var(--muted2); background: var(--surface2); }
+
+  footer {
+    position: relative;
+    z-index: 1;
+    border-top: 1px solid var(--border);
+    padding: 1.8rem 3rem;
+    max-width: 860px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.73rem;
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+  }
+
+  .fade-up { opacity: 0; transform: translateY(18px); animation: fu 0.55s cubic-bezier(.22,.68,0,1.2) forwards; }
+  @keyframes fu { to { opacity: 1; transform: translateY(0); } }
+  .d1 { animation-delay: 0.05s; } .d2 { animation-delay: 0.15s; }
+  .d3 { animation-delay: 0.25s; } .d4 { animation-delay: 0.35s; }
+
+  @media (max-width: 700px) {
+    nav { padding: 1rem 1.4rem; }
+    .hero { padding: 4rem 1.4rem 3rem; }
+    .section { padding: 2.5rem 1.4rem; }
+    .featured-card { grid-template-columns: 1fr; }
+    .about-strip { grid-template-columns: 1fr; }
+    footer { padding: 1.4rem; flex-direction: column; gap: 0.4rem; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-logo">S<em>ujal's Blog</em></a>
+  <ul class="nav-links">
+    <li><a href="index.html" class="active">Home</a></li>
+    <li><a href="resources.html">Resources</a></li>
+    <li><a href="https://github.com/wsujal" target="_blank">GitHub ↗</a></li>
+  </ul>
+</nav>
+
+<div class="hero fade-up d1">
+  <div class="hero-eyebrow">welcome</div>
+  <h1>Hey, I'm<br><em>Sujal.</em></h1>
+  <p class="hero-desc">
+    12:48
+  </p>
+  <div class="hero-links">
+    <a href="resources.html" class="btn-fill">Browse Resources →</a>
+    <a href="https://github.com/wsujal" target="_blank" class="btn-outline">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+      wsujal
+    </a>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<div class="section fade-up d2">
+  <div class="section-label">Featured</div>
+  <a href="resources.html" class="featured-card">
+    <div>
+      <div class="fc-tag">🖥 Microprocessor &amp; Interfacing · 3160712</div>
+      <div class="fc-title">8085 Assembly Language — Interactive Guide</div>
+      <div class="fc-desc">Instructions, addressing modes, rotate operations, a live simulator, and a quiz. Built to understand — not just memorize.</div>
+    </div>
+    <div class="fc-arrow">→</div>
+  </a>
+</div>
+
+<div class="divider"></div>
+
+<div class="section fade-up d3">
+  <div class="section-label">All Resources</div>
+  <div class="post-grid">
+    <a href="resources.html" class="post-card">
+      <div class="post-tag">Microprocessor</div>
+      <div class="post-title">8085 Assembly Language Basics</div>
+      <div class="post-meta">Unit 4 &amp; 5 · Interactive</div>
+    </a>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<div class="section fade-up d4">
+  <div class="about-strip">
+    <p>find me on <strong>GitHub</strong>.</p>
+    <a href="https://github.com/wsujal" target="_blank" class="as-link">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+      @wsujal
+    </a>
+  </div>
+</div>
+
+<footer>
+  <span>Sujal</span>
+  <span>github.com/wsujal</span>
+</footer>
+
+</body>
+</html>
