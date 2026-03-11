@@ -1,0 +1,1622 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Web Technology — 3160708</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#0a0b0e; --sur:#111318; --sur2:#161920; --sur3:#1d2130;
+  --bor:#1e2130; --bor2:#2a2f42;
+  --ink:#e8e6e1; --mut:#3e4257; --mut2:#848899; --mut3:#b2b6c8;
+  --acc:#e8673a; --blue:#5b8dee; --green:#3dd68c; --yellow:#f5c842; --purple:#a78bfa;
+  --code:#07080c; --r:10px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(255,255,255,.016) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.016) 1px,transparent 1px);background-size:44px 44px;pointer-events:none;z-index:0}
+body::after{content:'';position:fixed;top:-15vh;right:-5vw;width:55vw;height:55vh;background:radial-gradient(ellipse,rgba(232,103,58,.05) 0%,transparent 65%);pointer-events:none;z-index:0}
+.topnav{display:flex;align-items:center;justify-content:space-between;padding:.85rem 2rem;border-bottom:1px solid var(--bor);position:sticky;top:0;background:rgba(10,11,14,.94);backdrop-filter:blur(20px);z-index:300}
+.topnav-logo{font-family:'Instrument Serif',serif;font-size:1.15rem;color:var(--ink);text-decoration:none}
+.topnav-logo em{color:var(--acc);font-style:italic}
+.topnav-links a{font-size:.72rem;font-weight:500;color:var(--mut2);text-decoration:none;margin-left:1.3rem;letter-spacing:.06em;text-transform:uppercase;transition:color .2s}
+.topnav-links a:hover{color:var(--ink)}
+.prog{position:fixed;top:57px;left:0;right:0;height:2px;z-index:299}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--acc),var(--blue));width:0}
+.layout{display:flex;position:relative;z-index:1}
+.sidebar{width:220px;border-right:1px solid var(--bor);padding:1rem 0;position:sticky;top:57px;height:calc(100vh - 57px);overflow-y:auto;flex-shrink:0;scrollbar-width:thin;scrollbar-color:var(--bor2) transparent}
+.sidebar::-webkit-scrollbar{width:3px}
+.sidebar::-webkit-scrollbar-thumb{background:var(--bor2)}
+.sidebar-group{font-family:'DM Mono',monospace;font-size:.56rem;letter-spacing:.15em;text-transform:uppercase;color:var(--mut);padding:.85rem 1.25rem .3rem}
+.sidebar a{display:flex;align-items:center;gap:.45rem;padding:.33rem 1.25rem;font-size:.78rem;color:var(--mut2);text-decoration:none;border-left:2px solid transparent;transition:all .15s}
+.sidebar a:hover{color:var(--mut3)}
+.dot{width:4px;height:4px;border-radius:50%;background:var(--mut);flex-shrink:0;transition:background .2s}
+.sidebar a.active{color:var(--ink);border-left-color:var(--acc);background:rgba(232,103,58,.06)}
+.sidebar a.active .dot{background:var(--acc)}
+.main{flex:1;min-width:0;padding:2.5rem 3rem 6rem}
+.main-inner{max-width:860px}
+.page-header{margin-bottom:2.5rem;padding-bottom:2rem;border-bottom:1px solid var(--bor)}
+.page-eyebrow{font-family:'DM Mono',monospace;font-size:.62rem;color:var(--acc);letter-spacing:.16em;text-transform:uppercase;margin-bottom:.6rem}
+.page-title{font-family:'Instrument Serif',serif;font-size:2.6rem;margin-bottom:.35rem;line-height:1.15}
+.page-title em{color:var(--acc);font-style:italic}
+.page-desc{font-size:.87rem;color:var(--mut2);margin-bottom:1rem;line-height:1.75}
+.badges{display:flex;gap:.35rem;flex-wrap:wrap}
+.badge{display:inline-flex;font-family:'DM Mono',monospace;font-size:.58rem;padding:.15rem .55rem;border-radius:100px;letter-spacing:.04em}
+.b3{background:rgba(61,214,140,.1);color:var(--green);border:1px solid rgba(61,214,140,.2)}
+.b4{background:rgba(91,141,238,.1);color:var(--blue);border:1px solid rgba(91,141,238,.2)}
+.b7{background:rgba(232,103,58,.1);color:var(--acc);border:1px solid rgba(232,103,58,.2)}
+.bpyq{background:rgba(167,139,250,.1);color:var(--purple);border:1px solid rgba(167,139,250,.25)}
+.tab-bar{display:flex;gap:.25rem;margin-bottom:2rem;background:var(--sur);border:1px solid var(--bor);border-radius:12px;padding:.3rem}
+.tab-btn{flex:1;padding:.5rem 1rem;border:none;background:none;color:var(--mut2);font-family:'DM Mono',monospace;font-size:.75rem;cursor:pointer;border-radius:8px;transition:all .2s;letter-spacing:.03em}
+.tab-btn:hover{background:rgba(255,255,255,.04);color:var(--ink)}
+.tab-btn.active{background:var(--sur3);color:var(--ink);box-shadow:0 1px 4px rgba(0,0,0,.5)}
+.t-html.active{color:#f97316}.t-css.active{color:#5b8dee}.t-js.active{color:#fbbf24}
+.tab-pane{display:none;animation:fadeUp .22s ease}
+.tab-pane.active{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
+section{margin-bottom:3.2rem;scroll-margin-top:72px}
+h2{font-family:'Instrument Serif',serif;font-size:1.5rem;margin-bottom:1.1rem;padding-bottom:.6rem;border-bottom:1px solid var(--bor);display:flex;align-items:center;gap:.7rem;flex-wrap:wrap}
+h3{font-size:.82rem;font-weight:600;color:var(--acc);margin:1.3rem 0 .5rem;letter-spacing:.05em;text-transform:uppercase}
+p,ul,ol{color:var(--mut2);font-size:.875rem;line-height:1.85;margin-bottom:.65rem}
+ul,ol{padding-left:1.4rem}
+li{margin-bottom:.25rem}
+strong{color:var(--mut3);font-weight:600}
+pre{background:var(--code);border:1px solid var(--bor);border-radius:var(--r);padding:1rem 1.1rem;overflow-x:auto;font-size:.77rem;line-height:1.85;margin:.65rem 0;color:#b0b8cc;position:relative;font-family:'DM Mono',monospace}
+code{font-family:'DM Mono',monospace;font-size:.8em;background:rgba(91,141,238,.12);padding:.1em .38em;border-radius:4px;color:var(--blue)}
+pre code{background:none;padding:0;color:inherit;font-size:inherit}
+.copy-btn{position:absolute;top:.55rem;right:.6rem;background:var(--sur2);border:1px solid var(--bor2);color:var(--mut2);font-family:'DM Mono',monospace;font-size:.58rem;padding:.18rem .45rem;border-radius:5px;cursor:pointer;opacity:0;transition:all .18s}
+pre:hover .copy-btn{opacity:1}
+.copy-btn.ok{color:var(--green);border-color:rgba(61,214,140,.35)}
+table{width:100%;border-collapse:collapse;margin:.7rem 0;font-size:.84rem}
+th,td{padding:.5rem .85rem;border-bottom:1px solid var(--bor);text-align:left}
+th{background:var(--sur2);color:var(--mut2);font-size:.68rem;text-transform:uppercase;letter-spacing:.08em;font-family:'DM Mono',monospace;font-weight:500}
+td{color:var(--mut2)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(255,255,255,.012)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:.8rem;margin:.7rem 0}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.75rem;margin:.7rem 0}
+.card{background:var(--sur);border:1px solid var(--bor);border-radius:var(--r);padding:1rem 1.1rem;transition:border-color .2s}
+.card:hover{border-color:var(--bor2)}
+.card h3{margin-top:0}
+.callout{border-radius:8px;padding:.75rem 1rem;margin:.65rem 0;font-size:.85rem;line-height:1.75}
+.callout-tip{background:rgba(61,214,140,.06);border-left:3px solid var(--green);color:var(--mut3)}
+.callout-warn{background:rgba(245,200,66,.06);border-left:3px solid var(--yellow);color:var(--mut3)}
+.callout-info{background:rgba(91,141,238,.07);border-left:3px solid var(--blue);color:var(--mut3)}
+.pyq-tag{display:inline-flex;font-family:'DM Mono',monospace;font-size:.55rem;padding:.1rem .45rem;border-radius:100px;background:rgba(167,139,250,.1);color:var(--purple);border:1px solid rgba(167,139,250,.25);letter-spacing:.04em;vertical-align:middle;white-space:nowrap}
+.acc-item{border:1px solid var(--bor);border-radius:var(--r);margin-bottom:.5rem;overflow:hidden}
+.acc-hdr{display:flex;align-items:center;justify-content:space-between;padding:.75rem 1rem;cursor:pointer;background:var(--sur);transition:background .18s;font-size:.87rem;font-weight:500;color:var(--mut3);user-select:none}
+.acc-hdr:hover{background:var(--sur2)}
+.acc-hdr.open{color:var(--ink)}
+.acc-arrow{font-size:.7rem;color:var(--mut);transition:transform .22s;flex-shrink:0}
+.acc-hdr.open .acc-arrow{transform:rotate(180deg)}
+.acc-body{display:none;padding:.85rem 1rem 1rem;border-top:1px solid var(--bor);background:rgba(7,8,12,.3)}
+.acc-body.open{display:block;animation:fadeUp .18s ease}
+.demo-wrap{border:1px solid var(--bor);border-radius:var(--r);overflow:hidden;margin:.7rem 0}
+.demo-controls{background:var(--sur2);padding:.75rem 1rem;border-bottom:1px solid var(--bor);display:flex;flex-wrap:wrap;gap:.65rem;align-items:center}
+.demo-controls label{font-size:.74rem;color:var(--mut2);font-family:'DM Mono',monospace;display:flex;align-items:center;gap:.35rem}
+.demo-controls input[type=range]{accent-color:var(--acc);width:100px;cursor:pointer}
+.demo-controls select{background:var(--sur3);border:1px solid var(--bor2);color:var(--ink);font-size:.74rem;padding:.2rem .45rem;border-radius:5px;font-family:'DM Mono',monospace;cursor:pointer}
+.demo-controls input[type=color]{border:1px solid var(--bor2);background:none;border-radius:4px;width:26px;height:22px;cursor:pointer;padding:1px}
+.demo-preview{padding:1.5rem;min-height:120px;display:flex;align-items:center;justify-content:center;background:var(--bg)}
+.demo-box{background:var(--acc);color:#fff;font-size:.8rem;font-weight:500;font-family:'DM Mono',monospace;display:flex;align-items:center;justify-content:center;min-width:80px;min-height:50px;border-radius:4px;padding:.5rem .8rem}
+.demo-val{font-family:'DM Mono',monospace;font-size:.68rem;color:var(--acc);background:rgba(232,103,58,.1);border:1px solid rgba(232,103,58,.2);padding:.1rem .38rem;border-radius:4px;min-width:2.6rem;text-align:center}
+.spec-row{display:flex;align-items:center;gap:.5rem;margin:.45rem 0;font-size:.8rem}
+.spec-seg{border-radius:5px;padding:.25rem .55rem;font-family:'DM Mono',monospace;font-size:.7rem;font-weight:500;text-align:center;min-width:38px}
+.spec-id{background:rgba(232,103,58,.15);color:var(--acc);border:1px solid rgba(232,103,58,.3)}
+.spec-cl{background:rgba(91,141,238,.15);color:var(--blue);border:1px solid rgba(91,141,238,.3)}
+.spec-tg{background:rgba(61,214,140,.15);color:var(--green);border:1px solid rgba(61,214,140,.3)}
+.spec-lbl{color:var(--mut2);font-size:.75rem;min-width:190px;font-family:'DM Mono',monospace}
+.spec-score{color:var(--mut3);font-family:'DM Mono',monospace;font-size:.7rem;margin-left:.3rem}
+.pos-demo{position:relative;height:155px;background:var(--sur2);border-radius:8px;border:1px solid var(--bor);margin:.7rem 0}
+.pos-box{width:75px;height:44px;border-radius:5px;font-size:.62rem;font-family:'DM Mono',monospace;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;font-weight:500;gap:2px}
+@keyframes spin360{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.3)}}
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-28px)}}
+.anim-box{width:68px;height:68px;background:var(--acc);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:.63rem;color:#fff;font-family:'DM Mono',monospace}
+@media(max-width:800px){.sidebar{display:none}.main{padding:1.5rem}.grid2,.grid3{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<div class="prog"><div class="prog-fill" id="pbar"></div></div>
+
+<nav class="topnav">
+  <a href="index.html" class="topnav-logo">S<em>ujal's Blog</em></a>
+  <div class="topnav-links">
+    <a href="resources.html">← Resources</a>
+    <a href="https://github.com/wsujal" target="_blank">GitHub ↗</a>
+  </div>
+</nav>
+
+<div class="layout">
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-group">Introduction</div>
+  <a href="#intro"><span class="dot"></span>WWW &amp; Internet</a>
+  <a href="#http"><span class="dot"></span>HTTP Protocol</a>
+  <a href="#webdesign"><span class="dot"></span>Web Design Issues</a>
+
+  <div class="sidebar-group" id="sg-html">HTML</div>
+  <a href="#html-basics" class="sl-html"><span class="dot"></span>Basics &amp; Structure</a>
+  <a href="#html-tags" class="sl-html"><span class="dot"></span>Tags &amp; Formatting</a>
+  <a href="#html-lists" class="sl-html"><span class="dot"></span>Lists</a>
+  <a href="#html-tables" class="sl-html"><span class="dot"></span>Tables</a>
+  <a href="#html-forms" class="sl-html"><span class="dot"></span>Forms</a>
+  <a href="#html-links" class="sl-html"><span class="dot"></span>Links &amp; Images</a>
+  <a href="#html-frames" class="sl-html"><span class="dot"></span>Frames</a>
+  <a href="#html5" class="sl-html"><span class="dot"></span>HTML5</a>
+
+  <div class="sidebar-group" id="sg-css" style="display:none">CSS</div>
+  <a href="#css-types" class="sl-css" style="display:none"><span class="dot"></span>Types &amp; Syntax</a>
+  <a href="#css-selectors" class="sl-css" style="display:none"><span class="dot"></span>Selectors</a>
+  <a href="#css-boxmodel" class="sl-css" style="display:none"><span class="dot"></span>Box Model</a>
+  <a href="#css-fonts" class="sl-css" style="display:none"><span class="dot"></span>Fonts &amp; Text</a>
+  <a href="#css-borders" class="sl-css" style="display:none"><span class="dot"></span>Borders</a>
+  <a href="#css-lists" class="sl-css" style="display:none"><span class="dot"></span>Lists &amp; Links</a>
+  <a href="#css-positioning" class="sl-css" style="display:none"><span class="dot"></span>Positioning</a>
+  <a href="#css-float" class="sl-css" style="display:none"><span class="dot"></span>Float &amp; Z-index</a>
+  <a href="#css3" class="sl-css" style="display:none"><span class="dot"></span>CSS3 &amp; Animations</a>
+
+  <div class="sidebar-group" id="sg-js" style="display:none">JavaScript</div>
+  <a href="#js-intro"      class="sl-js" style="display:none"><span class="dot"></span>Introduction</a>
+  <a href="#js-variables"  class="sl-js" style="display:none"><span class="dot"></span>Variables &amp; Arrays</a>
+  <a href="#js-functions"  class="sl-js" style="display:none"><span class="dot"></span>Functions &amp; Loops</a>
+  <a href="#js-conditions" class="sl-js" style="display:none"><span class="dot"></span>Conditions</a>
+  <a href="#js-dom"        class="sl-js" style="display:none"><span class="dot"></span>DOM</a>
+  <a href="#js-events"     class="sl-js" style="display:none"><span class="dot"></span>Events</a>
+  <a href="#js-popups"     class="sl-js" style="display:none"><span class="dot"></span>Popup Boxes</a>
+  <a href="#js-validation" class="sl-js" style="display:none"><span class="dot"></span>Validation</a>
+  <a href="#js-objects"    class="sl-js" style="display:none"><span class="dot"></span>Objects</a>
+  <a href="#js-callbacks"  class="sl-js" style="display:none"><span class="dot"></span>Callbacks</a>
+  <a href="#js-json"       class="sl-js" style="display:none"><span class="dot"></span>JSON</a>
+  <a href="#js-errors"     class="sl-js" style="display:none"><span class="dot"></span>Error Handling</a>
+  <a href="#js-builtins"   class="sl-js" style="display:none"><span class="dot"></span>Built-in Objects</a>
+</aside>
+
+<main class="main">
+<div class="main-inner">
+
+<div class="page-header">
+  <div class="page-eyebrow">Subject 2160708</div>
+  <div class="page-title">Web <em>Technology</em></div>
+  <p class="page-desc">HTML · CSS · JavaScript — theory, code &amp; PYQ coverage</p>
+  <div class="badges">
+    <span class="badge b3">3M</span>
+    <span class="badge b4">4M</span>
+    <span class="badge b7">7M</span>
+    <span class="badge bpyq">PYQ</span>
+  </div>
+</div>
+
+<div class="tab-bar">
+  <button class="tab-btn t-html active" onclick="switchTab('html')">HTML</button>
+  <button class="tab-btn t-css" onclick="switchTab('css')">CSS</button>
+  <button class="tab-btn t-js" onclick="switchTab('js')">JavaScript</button>
+</div>
+
+<!-- ════════════════ HTML TAB ════════════════ -->
+<div class="tab-pane active" id="tab-html">
+
+<section id="intro">
+  <h2>WWW &amp; The Internet <span class="pyq-tag">PYQ 3M</span></h2>
+  <p><strong>WWW (World Wide Web)</strong> is a global information medium — a system of interlinked hypertext documents accessed via browsers using HTTP. Tim Berners-Lee proposed the concept in 1989 while at CERN, and it expanded into the modern Web by 1990.</p>
+  <div class="grid2">
+    <div class="card"><h3>Internet</h3><ul><li>Global network of networks</li><li>Infrastructure layer — TCP/IP</li><li>Carries email, FTP, WWW &amp; more</li><li>Connects millions of computers</li></ul></div>
+    <div class="card"><h3>WWW</h3><ul><li>One <em>service</em> running on the Internet</li><li>Uses HTTP protocol</li><li>Accessed via browsers (Chrome, Firefox)</li><li>Documents linked by hyperlinks &amp; URLs</li></ul></div>
+  </div>
+  <div class="callout callout-info"><strong>Key Distinction:</strong> Internet ≠ WWW. The Internet is the physical infrastructure (cables, routers, protocols). WWW is software — web pages you access via a browser using HTTP.</div>
+  <h3>Web 2.0 Features <span class="pyq-tag">PYQ 4M</span></h3>
+  <p>Web 2.0 (coined 2004) marks the shift from static read-only pages to dynamic, user-driven content and community participation.</p>
+  <div class="grid3">
+    <div class="card"><h3>Blogs</h3><p style="margin:0;font-size:.82rem">User-generated posts. Examples: Blogger, WordPress.</p></div>
+    <div class="card"><h3>Wikis</h3><p style="margin:0;font-size:.82rem">Community-edited content. Example: Wikipedia.</p></div>
+    <div class="card"><h3>Social Networks</h3><p style="margin:0;font-size:.82rem">Profile-based communities. Example: Facebook.</p></div>
+    <div class="card"><h3>Rich UX</h3><p style="margin:0;font-size:.82rem">AJAX-based dynamic pages. Example: Google Maps.</p></div>
+    <div class="card"><h3>Web Apps</h3><p style="margin:0;font-size:.82rem">Full programs in browser. Example: Google Docs.</p></div>
+    <div class="card"><h3>User Participation</h3><p style="margin:0;font-size:.82rem">Crowd-sourced content. Example: YouTube, Wikipedia.</p></div>
+  </div>
+</section>
+
+<section id="http">
+  <h2>HTTP Protocol <span class="pyq-tag">PYQ 3M</span> <span class="pyq-tag">PYQ 4M</span></h2>
+  <p><strong>HTTP (Hypertext Transfer Protocol)</strong> is a <em>stateless</em>, request-response protocol running over TCP/IP. Stateless = the server doesn't remember previous requests. Each request is independent.</p>
+  <h3>GET vs POST <span class="pyq-tag">PYQ 3M</span></h3>
+  <table>
+    <tr><th>Feature</th><th>GET</th><th>POST</th></tr>
+    <tr><td>Data location</td><td>Appended to URL</td><td>In request body</td></tr>
+    <tr><td>Visibility</td><td>Visible in address bar</td><td>Hidden from URL</td></tr>
+    <tr><td>Security</td><td>Less secure</td><td>More secure</td></tr>
+    <tr><td>Data size limit</td><td>~2048 chars (URL limit)</td><td>No practical limit</td></tr>
+    <tr><td>Caching</td><td>Can be cached/bookmarked</td><td>Not cached</td></tr>
+    <tr><td>Use case</td><td>Fetching data, search queries</td><td>Login, forms, file upload</td></tr>
+  </table>
+  <h3>HTTP Request Example</h3>
+  <pre>GET /docs/index.html HTTP/1.1
+Host: www.example.com
+Accept: text/html, image/gif, */*
+Accept-Language: en-us
+User-Agent: Mozilla/5.0</pre>
+  <h3>HTTP Header Types</h3>
+  <div class="grid2">
+    <div class="card"><h3>General Header</h3><p style="margin:0;font-size:.82rem">For both request &amp; response. e.g. <code>Date</code>, <code>Connection</code></p></div>
+    <div class="card"><h3>Request Header</h3><p style="margin:0;font-size:.82rem">Only in requests. e.g. <code>Host</code>, <code>Accept</code>, <code>User-Agent</code></p></div>
+    <div class="card"><h3>Response Header</h3><p style="margin:0;font-size:.82rem">Only in responses. e.g. <code>Server</code>, <code>Set-Cookie</code></p></div>
+    <div class="card"><h3>Entity Header</h3><p style="margin:0;font-size:.82rem">Describes the body. e.g. <code>Content-Type</code>, <code>Content-Length</code></p></div>
+  </div>
+  <h3>HTTP Status Codes <span class="pyq-tag">PYQ 4M</span></h3>
+  <table>
+    <tr><th>Code</th><th>Meaning</th></tr>
+    <tr><td><code>200</code></td><td>OK — Request succeeded</td></tr>
+    <tr><td><code>301</code></td><td>Moved Permanently</td></tr>
+    <tr><td><code>404</code></td><td>Not Found — Resource doesn't exist</td></tr>
+    <tr><td><code>500</code></td><td>Internal Server Error</td></tr>
+    <tr><td><code>502</code></td><td>Bad Gateway — Invalid response from upstream</td></tr>
+  </table>
+</section>
+
+<section id="webdesign">
+  <h2>Web Design Issues <span class="pyq-tag">PYQ 4M</span> <span class="pyq-tag">PYQ 7M</span></h2>
+  <div class="acc-item"><div class="acc-hdr" onclick="toggleAcc(this)">🌐 Browser &amp; OS Compatibility<span class="acc-arrow">▼</span></div><div class="acc-body"><p>Different browsers interpret HTML/CSS differently. Same browser can behave differently across OS platforms. <strong>Solution:</strong> Test on multiple browsers and operating systems before releasing.</p></div></div>
+  <div class="acc-item"><div class="acc-hdr" onclick="toggleAcc(this)">📶 Bandwidth &amp; Cache<span class="acc-arrow">▼</span></div><div class="acc-body"><p>Users have different speeds. Too many images on a low-bandwidth connection = slow load. Users won't wait more than 10–15 seconds. Browsers use <strong>cache</strong> (temporary memory) to store graphics so repeat visits are faster.</p></div></div>
+  <div class="acc-item"><div class="acc-hdr" onclick="toggleAcc(this)">🖥️ Display Resolution<span class="acc-arrow">▼</span></div><div class="acc-body"><p>Screen resolution varies (800×600, 1024×768, 1920×1080+). Three design approaches: <strong>Fixed</strong> layout, <strong>Flexible</strong> layout using CSS/tables, or <strong>Centered</strong> design. Best practice: use responsive frameworks like Bootstrap.</p></div></div>
+  <div class="acc-item"><div class="acc-hdr" onclick="toggleAcc(this)">🧭 Navigation &amp; Effective Tips <span class="pyq-tag" style="margin-left:.3rem">PYQ 3M</span><span class="acc-arrow">▼</span></div><div class="acc-body"><ul><li>Links should be clear, meaningful, and consistent</li><li>Group content logically — don't dump everything in one nav</li><li>Provide a way to return to the home page from every page</li><li>Use horizontal nav bars for quick section jumping</li><li>Show users where they are (breadcrumbs, active link highlight)</li><li>Include: <em>About Us</em>, <em>Contact Us</em>, <em>Search</em></li></ul></div></div>
+  <div class="acc-item"><div class="acc-hdr" onclick="toggleAcc(this)">🎨 Look, Feel &amp; Page Layout<span class="acc-arrow">▼</span></div><div class="acc-body"><p>Covers website theme, typography, graphics, and visual structure. Screen is divided into 5 priority areas: <strong>center → top → right → bottom → left</strong>. Design should be user-centric — users scan first, read later.</p></div></div>
+</section>
+
+<section id="html-basics">
+  <h2>HTML Basics &amp; Structure</h2>
+  <p><strong>HTML (Hypertext Markup Language)</strong> is a markup language (not a programming language) used to structure web content. Browsers read HTML top-to-bottom, left-to-right.</p>
+  <h3>Four Critical Elements</h3>
+  <pre>&lt;html&gt;              &lt;!-- Root element, wraps everything --&gt;
+  &lt;head&gt;            &lt;!-- Metadata: not shown on page --&gt;
+    &lt;title&gt;My Page&lt;/title&gt;
+  &lt;/head&gt;
+  &lt;body&gt;            &lt;!-- All visible content goes here --&gt;
+    &lt;h1&gt;Hello World&lt;/h1&gt;
+    &lt;p&gt;My first paragraph.&lt;/p&gt;
+  &lt;/body&gt;
+&lt;/html&gt;</pre>
+  <div class="callout callout-tip"><strong>HTML5:</strong> Always start with <code>&lt;!DOCTYPE html&gt;</code> — tells the browser to use HTML5 standards mode.</div>
+  <h3>Meta Tags <span class="pyq-tag">PYQ 3M</span></h3>
+  <pre>&lt;meta charset="UTF-8"&gt;
+&lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;
+
+&lt;!-- Set page expiry date --&gt;
+&lt;meta http-equiv="expires" content="Wed, 01 Jan 2025 00:00:00 GMT"&gt;
+
+&lt;!-- Disable caching --&gt;
+&lt;meta http-equiv="Cache-Control" content="no-cache, no-store"&gt;
+
+&lt;!-- Page description for search engines --&gt;
+&lt;meta name="description" content="Web Technology notes GTU 2160708"&gt;</pre>
+</section>
+
+<section id="html-tags">
+  <h2>Tags &amp; Formatting <span class="pyq-tag">PYQ 7M</span></h2>
+  <p>Tags have three parts: opening tag <code>&lt;p&gt;</code>, content, closing tag <code>&lt;/p&gt;</code>. Self-closing tags like <code>&lt;br&gt;</code> have no closing tag.</p>
+  <h3>Text Formatting Tags</h3>
+  <table>
+    <tr><th>Tag</th><th>Effect</th><th>Example</th></tr>
+    <tr><td><code>&lt;b&gt;</code></td><td>Bold (visual only)</td><td><code>&lt;b&gt;Bold&lt;/b&gt;</code></td></tr>
+    <tr><td><code>&lt;i&gt;</code></td><td>Italic (visual only)</td><td><code>&lt;i&gt;Italic&lt;/i&gt;</code></td></tr>
+    <tr><td><code>&lt;em&gt;</code></td><td>Emphasis (semantic italic)</td><td><code>&lt;em&gt;Important&lt;/em&gt;</code></td></tr>
+    <tr><td><code>&lt;strong&gt;</code></td><td>Semantic bold</td><td><code>&lt;strong&gt;Strong&lt;/strong&gt;</code></td></tr>
+    <tr><td><code>&lt;sup&gt;</code></td><td>Superscript</td><td><code>x&lt;sup&gt;2&lt;/sup&gt;</code> → x²</td></tr>
+    <tr><td><code>&lt;sub&gt;</code></td><td>Subscript</td><td><code>H&lt;sub&gt;2&lt;/sub&gt;O</code> → H₂O</td></tr>
+    <tr><td><code>&lt;br&gt;</code></td><td>Line break</td><td><code>Line1&lt;br&gt;Line2</code></td></tr>
+    <tr><td><code>&lt;hr&gt;</code></td><td>Horizontal divider</td><td><code>&lt;hr&gt;</code></td></tr>
+    <tr><td><code>&lt;span&gt;</code></td><td>Inline styling container</td><td><code>&lt;span style="color:red"&gt;red&lt;/span&gt;</code></td></tr>
+  </table>
+  <h3>Color — 3 Methods</h3>
+  <pre>&lt;font color="red"&gt;By name&lt;/font&gt;
+&lt;font color="#ff0000"&gt;By hex&lt;/font&gt;
+&lt;font color="rgb(255,0,0)"&gt;By RGB&lt;/font&gt;</pre>
+</section>
+
+<section id="html-lists">
+  <h2>HTML Lists <span class="pyq-tag">PYQ 3M</span> <span class="pyq-tag">PYQ 4M</span></h2>
+  <div class="grid2">
+    <div>
+      <h3>Ordered List</h3>
+      <pre>&lt;ol type="1"&gt; &lt;!-- 1,2,3 (default) --&gt;
+&lt;ol type="A"&gt; &lt;!-- A,B,C --&gt;
+&lt;ol type="a"&gt; &lt;!-- a,b,c --&gt;
+&lt;ol type="I"&gt; &lt;!-- I,II,III --&gt;
+&lt;ol start="4"&gt;&lt;!-- starts at 4 --&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;HTML&lt;/li&gt;
+  &lt;li&gt;CSS&lt;/li&gt;
+  &lt;li&gt;JavaScript&lt;/li&gt;
+&lt;/ol&gt;</pre>
+    </div>
+    <div>
+      <h3>Unordered List</h3>
+      <pre>&lt;ul type="disc"&gt;   &lt;!-- ● default --&gt;
+&lt;ul type="circle"&gt; &lt;!-- ○ --&gt;
+&lt;ul type="square"&gt; &lt;!-- ■ --&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Apple&lt;/li&gt;
+  &lt;li&gt;Mango&lt;/li&gt;
+  &lt;li&gt;Banana&lt;/li&gt;
+&lt;/ul&gt;</pre>
+    </div>
+  </div>
+  <h3>Definition List</h3>
+  <pre>&lt;dl&gt;
+  &lt;dt&gt;&lt;b&gt;HTTP&lt;/b&gt;&lt;/dt&gt;
+  &lt;dd&gt;Hypertext Transfer Protocol.&lt;/dd&gt;
+  &lt;dt&gt;&lt;b&gt;CSS&lt;/b&gt;&lt;/dt&gt;
+  &lt;dd&gt;Cascading Style Sheets.&lt;/dd&gt;
+&lt;/dl&gt;</pre>
+  <h3>Nested List <span class="pyq-tag">PYQ 4M</span></h3>
+  <pre>&lt;ol&gt;
+  &lt;li&gt;DoTNet&lt;/li&gt;
+  &lt;li&gt;Cyber Security&lt;/li&gt;
+  &lt;li&gt;Web Tech
+    &lt;ul&gt;
+      &lt;li&gt;CSS&lt;/li&gt;
+      &lt;li&gt;HTML&lt;/li&gt;
+      &lt;li&gt;JS&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;IoT&lt;/li&gt;
+&lt;/ol&gt;</pre>
+</section>
+
+<section id="html-tables">
+  <h2>HTML Tables <span class="pyq-tag">PYQ 7M</span></h2>
+  <table>
+    <tr><th>Attribute</th><th>Description</th></tr>
+    <tr><td><code>border</code></td><td>Border thickness in pixels</td></tr>
+    <tr><td><code>cellpadding</code></td><td>Space between content and cell border</td></tr>
+    <tr><td><code>cellspacing</code></td><td>Space between cells</td></tr>
+    <tr><td><code>colspan</code></td><td>Span cell across multiple columns</td></tr>
+    <tr><td><code>rowspan</code></td><td>Span cell across multiple rows</td></tr>
+    <tr><td><code>bgcolor</code></td><td>Background color of table/row/cell</td></tr>
+  </table>
+  <h3>rowspan &amp; colspan Example <span class="pyq-tag">PYQ 7M</span></h3>
+  <pre>&lt;table border="1"&gt;
+  &lt;tr&gt;
+    &lt;th&gt;C1&lt;/th&gt;
+    &lt;th&gt;C2&lt;/th&gt;
+    &lt;th colspan="2"&gt;C3&lt;/th&gt;  &lt;!-- spans 2 columns --&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+    &lt;td rowspan="2"&gt;R1&lt;/td&gt;  &lt;!-- spans 2 rows --&gt;
+    &lt;td&gt;R1a&lt;/td&gt;
+    &lt;td&gt;123&lt;/td&gt;
+    &lt;td&gt;456&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+    &lt;td&gt;789&lt;/td&gt;
+    &lt;td colspan="2"&gt;E=m*c&lt;sup&gt;2&lt;/sup&gt;&lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/table&gt;</pre>
+  <div class="callout callout-tip"><strong>Rule:</strong> <code>colspan</code> = merge across columns (horizontal). <code>rowspan</code> = merge across rows (vertical). Heavily tested in 7M questions.</div>
+</section>
+
+<section id="html-forms">
+  <h2>HTML Forms <span class="pyq-tag">PYQ 7M</span></h2>
+  <p>Forms collect user input and send it to a server. <code>&lt;form&gt;</code> is the container.</p>
+  <h3>Form Attributes</h3>
+  <table>
+    <tr><th>Attribute</th><th>Values</th><th>Description</th></tr>
+    <tr><td><code>action</code></td><td>URL</td><td>Where to send form data on submit</td></tr>
+    <tr><td><code>method</code></td><td>get / post</td><td>How to send data</td></tr>
+    <tr><td><code>name</code></td><td>text</td><td>Reference form in JavaScript</td></tr>
+    <tr><td><code>target</code></td><td>_blank / _self</td><td>Where to show response</td></tr>
+    <tr><td><code>enctype</code></td><td>multipart/form-data</td><td>Required for file uploads</td></tr>
+  </table>
+  <h3>All Input Types</h3>
+  <pre>&lt;input type="text"&gt;       &lt;!-- Single line text --&gt;
+&lt;input type="password"&gt;   &lt;!-- Masked text --&gt;
+&lt;input type="email"&gt;      &lt;!-- Email with built-in validation --&gt;
+&lt;input type="number"&gt;     &lt;!-- Numeric only --&gt;
+&lt;input type="checkbox"&gt;   &lt;!-- Multiple selections --&gt;
+&lt;input type="radio"&gt;      &lt;!-- One from a group --&gt;
+&lt;input type="file"&gt;       &lt;!-- File upload --&gt;
+&lt;input type="submit"&gt;     &lt;!-- Submit the form --&gt;
+&lt;input type="reset"&gt;      &lt;!-- Clear all fields --&gt;
+&lt;input type="hidden"&gt;     &lt;!-- Not shown to user --&gt;
+&lt;textarea rows="4" cols="30"&gt;&lt;/textarea&gt;
+&lt;select&gt;&lt;option&gt;...&lt;/option&gt;&lt;/select&gt;</pre>
+  <h3>Student Registration Form <span class="pyq-tag">PYQ 7M</span></h3>
+  <pre>&lt;form action="submit.php" method="post"&gt;
+
+  Name:     &lt;input type="text" name="name" required&gt;&lt;br&gt;&lt;br&gt;
+  Roll No:  &lt;input type="text" name="rollno" required&gt;&lt;br&gt;&lt;br&gt;
+  Password: &lt;input type="password" name="pass" minlength="6"&gt;&lt;br&gt;&lt;br&gt;
+  Mobile:   &lt;input type="text" name="mob" maxlength="10"&gt;&lt;br&gt;&lt;br&gt;
+
+  Semester:
+  &lt;select name="sem"&gt;
+    &lt;option&gt;Select&lt;/option&gt;
+    &lt;option value="3"&gt;3rd&lt;/option&gt;
+    &lt;option value="5"&gt;5th&lt;/option&gt;
+  &lt;/select&gt;&lt;br&gt;&lt;br&gt;
+
+  Gender:
+  &lt;input type="radio" name="gender" value="M"&gt; Male
+  &lt;input type="radio" name="gender" value="F"&gt; Female&lt;br&gt;&lt;br&gt;
+
+  Hobbies:
+  &lt;input type="checkbox" name="h" value="coding"&gt; Coding
+  &lt;input type="checkbox" name="h" value="music"&gt; Music&lt;br&gt;&lt;br&gt;
+
+  Feedback:&lt;br&gt;
+  &lt;textarea name="feedback" rows="4" cols="35"&gt;&lt;/textarea&gt;&lt;br&gt;&lt;br&gt;
+
+  &lt;input type="submit" value="Submit"&gt;
+  &lt;input type="reset"  value="Reset"&gt;
+&lt;/form&gt;</pre>
+  <h3>optgroup &amp; span</h3>
+  <pre>&lt;!-- optgroup: group options in dropdown --&gt;
+&lt;select&gt;
+  &lt;optgroup label="Indian Cars"&gt;
+    &lt;option&gt;Tata&lt;/option&gt;
+    &lt;option&gt;Mahindra&lt;/option&gt;
+  &lt;/optgroup&gt;
+  &lt;optgroup label="German Cars"&gt;
+    &lt;option&gt;BMW&lt;/option&gt;
+    &lt;option&gt;Audi&lt;/option&gt;
+  &lt;/optgroup&gt;
+&lt;/select&gt;
+
+&lt;!-- span: inline hook for styling, no visual effect on its own --&gt;
+&lt;p&gt;Eyes are &lt;span style="color:lightblue"&gt;blue&lt;/span&gt;.&lt;/p&gt;</pre>
+</section>
+
+<section id="html-links">
+  <h2>Links &amp; Images</h2>
+  <h3>Hyperlinks (href)</h3>
+  <pre>&lt;!-- External link --&gt;
+&lt;a href="https://www.google.com" target="_blank"&gt;Google ↗&lt;/a&gt;
+
+&lt;!-- Local (same site) --&gt;
+&lt;a href="../about.html"&gt;About Us&lt;/a&gt;
+
+&lt;!-- Internal anchor (same page) --&gt;
+&lt;a href="#section1"&gt;Jump to Section 1&lt;/a&gt;
+&lt;h2 id="section1"&gt;Section 1&lt;/h2&gt;</pre>
+  <h3>Target Values</h3>
+  <table>
+    <tr><th>Value</th><th>Behaviour</th></tr>
+    <tr><td><code>_blank</code></td><td>Opens in new tab/window</td></tr>
+    <tr><td><code>_self</code></td><td>Opens in same window (default)</td></tr>
+    <tr><td><code>_parent</code></td><td>Opens in parent frame</td></tr>
+    <tr><td><code>_top</code></td><td>Full window, cancels all frames</td></tr>
+  </table>
+  <h3>Images</h3>
+  <pre>&lt;img src="photo.jpg" alt="description" height="200" width="300"&gt;
+
+&lt;!-- Image as a link --&gt;
+&lt;a href="https://example.com"&gt;
+  &lt;img src="logo.png" alt="Logo"&gt;
+&lt;/a&gt;
+
+&lt;!-- Float right so text wraps around it --&gt;
+&lt;img src="pic.jpg" align="right" alt="pic"&gt;
+&lt;p&gt;Text wraps around the image here...&lt;/p&gt;</pre>
+</section>
+
+<section id="html-frames">
+  <h2>HTML Frames <span class="pyq-tag">PYQ 7M</span></h2>
+  <p>Frames divide the browser window into sections, each loading a separate HTML page. <strong>Deprecated in HTML5</strong> — use CSS Flexbox/Grid instead. Still asked in exams — know the syntax.</p>
+  <pre>&lt;!-- Vertical split: 30% nav | 70% content --&gt;
+&lt;frameset cols="30%,70%"&gt;
+  &lt;frame src="menu.html"   name="menu"&gt;
+  &lt;frame src="content.html" name="content"&gt;
+&lt;/frameset&gt;
+
+&lt;!-- Horizontal split then vertical --&gt;
+&lt;frameset rows="80px,*"&gt;
+  &lt;frame src="header.html"&gt;
+  &lt;frameset cols="200px,*"&gt;
+    &lt;frame src="sidebar.html"&gt;
+    &lt;frame src="main.html"&gt;
+  &lt;/frameset&gt;
+&lt;/frameset&gt;</pre>
+  <div class="callout callout-warn"><strong>Exam Note:</strong> Frames are removed in HTML5 but still appear in PYQs. Always mention they are deprecated and suggest CSS layouts as the modern alternative.</div>
+</section>
+
+<section id="html5">
+  <h2>HTML5 <span class="pyq-tag">PYQ 4M</span></h2>
+  <p>HTML5 adds semantic structure, multimedia, canvas, and better form controls. Doctype simplified to just <code>&lt;!DOCTYPE html&gt;</code>.</p>
+  <div class="grid2">
+    <div class="card">
+      <h3>Semantic / Structure Tags</h3>
+      <pre style="margin:0;font-size:.75rem">&lt;header&gt;  — page/section header
+&lt;nav&gt;     — navigation links
+&lt;main&gt;    — main page content
+&lt;section&gt; — thematic section
+&lt;article&gt; — self-contained content
+&lt;aside&gt;   — sidebar / related
+&lt;footer&gt;  — page footer</pre>
+    </div>
+    <div class="card">
+      <h3>Media &amp; Canvas</h3>
+      <pre style="margin:0;font-size:.75rem">&lt;audio src="s.mp3" controls&gt;&lt;/audio&gt;
+
+&lt;video src="v.mp4" controls
+  width="320" height="240"&gt;
+&lt;/video&gt;
+
+&lt;canvas id="c"
+  width="400" height="300"&gt;
+&lt;/canvas&gt;
+
+&lt;svg width="100" height="100"&gt;
+  &lt;circle cx="50" cy="50" r="40"/&gt;
+&lt;/svg&gt;</pre>
+    </div>
+  </div>
+  <h3>Removed in HTML5</h3>
+  <table>
+    <tr><th>Removed Tag</th><th>Use Instead</th></tr>
+    <tr><td><code>&lt;font&gt;</code>, <code>&lt;basefont&gt;</code></td><td>CSS font properties</td></tr>
+    <tr><td><code>&lt;center&gt;</code></td><td>CSS <code>text-align: center</code></td></tr>
+    <tr><td><code>&lt;frame&gt;</code>, <code>&lt;frameset&gt;</code>, <code>&lt;noframes&gt;</code></td><td>CSS layouts / <code>&lt;iframe&gt;</code></td></tr>
+    <tr><td><code>&lt;big&gt;</code>, <code>&lt;strike&gt;</code>, <code>&lt;tt&gt;</code></td><td>CSS styling</td></tr>
+    <tr><td><code>&lt;applet&gt;</code></td><td><code>&lt;object&gt;</code></td></tr>
+  </table>
+  <h3>HTML5 Form Validation Attributes <span class="pyq-tag">PYQ 7M</span></h3>
+  <pre>&lt;input type="email"   required&gt;           &lt;!-- Valid email format --&gt;
+&lt;input type="number"  min="1" max="10"&gt;   &lt;!-- Range check --&gt;
+&lt;input type="text"    pattern="[0-9]{10}"&gt;&lt;!-- Regex pattern --&gt;
+&lt;input type="text"    minlength="6" maxlength="20"&gt;
+&lt;input type="date"&gt;                        &lt;!-- Date picker --&gt;
+&lt;input type="range"   min="0" max="100"&gt;  &lt;!-- Slider --&gt;
+&lt;input type="color"&gt;                       &lt;!-- Color picker --&gt;</pre>
+</section>
+
+</div><!-- end tab-html -->
+
+<!-- ════════════════ CSS TAB ════════════════ -->
+<div class="tab-pane" id="tab-css">
+
+<section id="css-types">
+  <h2>CSS — Types &amp; Syntax <span class="pyq-tag">PYQ 7M</span></h2>
+  <p><strong>CSS (Cascading Style Sheets)</strong> defines how HTML elements are displayed. Rules <em>cascade</em> — later/more-specific rules override earlier/less-specific ones.</p>
+  <h3>CSS Syntax</h3>
+  <pre>selector {
+  property: value;    /* one declaration */
+  property: value;
+}</pre>
+  <h3>3 Ways to Write CSS <span class="pyq-tag">PYQ 7M</span></h3>
+  <div class="acc-item"><div class="acc-hdr" onclick="toggleAcc(this)">1. Inline CSS — Highest Priority<span class="acc-arrow">▼</span></div><div class="acc-body"><p>Written inside element's <code>style</code> attribute. Hardest to maintain, overrides everything else.</p><pre>&lt;p style="color: red; font-size: 18px;"&gt;Red paragraph&lt;/p&gt;
+&lt;h1 style="background: blue; color: white;"&gt;Blue Heading&lt;/h1&gt;</pre></div></div>
+  <div class="acc-item"><div class="acc-hdr" onclick="toggleAcc(this)">2. Internal / Embedded CSS — Single Page<span class="acc-arrow">▼</span></div><div class="acc-body"><p>Written inside <code>&lt;style&gt;</code> tag in <code>&lt;head&gt;</code>. Good for single-page styles only.</p><pre>&lt;head&gt;
+  &lt;style&gt;
+    body { background-color: black; }
+    p    { color: white; font-size: 16px; }
+    h1   { color: orange; }
+  &lt;/style&gt;
+&lt;/head&gt;</pre></div></div>
+  <div class="acc-item"><div class="acc-hdr" onclick="toggleAcc(this)">3. External CSS — Best Practice ✓<span class="acc-arrow">▼</span></div><div class="acc-body"><p>Separate <code>.css</code> file linked via <code>&lt;link&gt;</code>. One file styles the whole website — change once, updates everywhere.</p><pre>&lt;!-- In HTML &lt;head&gt; --&gt;
+&lt;link rel="stylesheet" type="text/css" href="style.css"&gt;
+
+/* style.css */
+body { background-color: #f0f0f0; }
+p    { color: #333; line-height: 1.6; }
+h1   { color: #e8673a; }</pre></div></div>
+  <div class="callout callout-info"><strong>Priority Order:</strong> Inline &gt; Internal &gt; External &gt; Browser Default</div>
+</section>
+
+<section id="css-selectors">
+  <h2>CSS Selectors <span class="pyq-tag">PYQ 7M</span></h2>
+  <h3>id vs class <span class="pyq-tag">PYQ 7M</span></h3>
+  <div class="grid2">
+    <div class="card"><h3>id Selector</h3><ul><li>Targets one unique element</li><li>Uses <code>#</code> symbol</li><li>Higher specificity than class</li><li>One id per element</li></ul><pre style="margin-top:.6rem">#header { color: white; }</pre></div>
+    <div class="card"><h3>class Selector</h3><ul><li>Targets many elements</li><li>Uses <code>.</code> symbol</li><li>Reusable — apply to any element</li><li>Multiple classes on one element OK</li></ul><pre style="margin-top:.6rem">.highlight { color: orange; }</pre></div>
+  </div>
+  <h3>All Selector Types</h3>
+  <table>
+    <tr><th>Selector</th><th>Example</th><th>Targets</th></tr>
+    <tr><td>Universal</td><td><code>* { margin:0; }</code></td><td>Every element on page</td></tr>
+    <tr><td>Type / Element</td><td><code>p { color:blue; }</code></td><td>All &lt;p&gt; elements</td></tr>
+    <tr><td>Class</td><td><code>.box { border:1px; }</code></td><td>Elements with class="box"</td></tr>
+    <tr><td>ID</td><td><code>#main { width:900px; }</code></td><td>Element with id="main"</td></tr>
+    <tr><td>Descendant</td><td><code>div p { color:red; }</code></td><td>&lt;p&gt; inside a &lt;div&gt;</td></tr>
+    <tr><td>Pseudo-class</td><td><code>a:hover { color:red; }</code></td><td>Element in a state</td></tr>
+    <tr><td>Pseudo-element</td><td><code>p::first-line { }</code></td><td>Part of an element</td></tr>
+    <tr><td>Attribute</td><td><code>[type="text"] { }</code></td><td>Elements with that attribute</td></tr>
+    <tr><td>Wildcard *</td><td><code>* { box-sizing:border-box; }</code></td><td>All elements</td></tr>
+  </table>
+  <h3>Specificity — Who Wins? <span class="pyq-tag">PYQ 4M</span></h3>
+  <p>Specificity is scored as <strong>(IDs, Classes, Tags)</strong>. Higher score wins when rules conflict.</p>
+  <div class="spec-row"><span class="spec-lbl"><code>p</code></span><span class="spec-seg spec-id">0</span><span class="spec-seg spec-cl">0</span><span class="spec-seg spec-tg">1</span><span class="spec-score">= 001 — tag only</span></div>
+  <div class="spec-row"><span class="spec-lbl"><code>.box</code></span><span class="spec-seg spec-id">0</span><span class="spec-seg spec-cl">1</span><span class="spec-seg spec-tg">0</span><span class="spec-score">= 010 — class wins over tag</span></div>
+  <div class="spec-row"><span class="spec-lbl"><code>#header</code></span><span class="spec-seg spec-id">1</span><span class="spec-seg spec-cl">0</span><span class="spec-seg spec-tg">0</span><span class="spec-score">= 100 — ID beats everything</span></div>
+  <div class="spec-row"><span class="spec-lbl"><code>#header .box p</code></span><span class="spec-seg spec-id">1</span><span class="spec-seg spec-cl">1</span><span class="spec-seg spec-tg">1</span><span class="spec-score">= 111 — most specific</span></div>
+</section>
+
+<section id="css-boxmodel">
+  <h2>CSS Box Model <span class="pyq-tag">PYQ 7M</span></h2>
+  <p>Every HTML element is a box with 4 layers: <strong>Content → Padding → Border → Margin</strong>.</p>
+  <div class="demo-wrap">
+    <div class="demo-controls">
+      <label>Padding <span class="demo-val" id="pad-val">20px</span><input type="range" min="0" max="50" value="20" oninput="updateBox(this.closest('.demo-wrap'))"></label>
+      <label>Border <span class="demo-val" id="bor-val">3px</span><input type="range" min="0" max="18" value="3" oninput="updateBox(this.closest('.demo-wrap'))"></label>
+      <label>Margin <span class="demo-val" id="mar-val">15px</span><input type="range" min="0" max="50" value="15" oninput="updateBox(this.closest('.demo-wrap'))"></label>
+    </div>
+    <div class="demo-preview" style="background:#07080c">
+      <div id="bm-margin" style="background:rgba(245,200,66,.12);border:1px dashed rgba(245,200,66,.35);display:inline-block;transition:all .2s;padding:15px">
+        <div id="bm-border" style="border:3px solid var(--acc);display:inline-block;transition:all .2s">
+          <div id="bm-padding" style="background:rgba(91,141,238,.18);display:inline-block;padding:20px;transition:all .2s">
+            <div style="background:var(--blue);color:#fff;padding:.3rem .7rem;font-family:'DM Mono',monospace;font-size:.72rem">content</div>
+          </div>
+        </div>
+      </div>
+      <div style="margin-left:1.5rem;font-family:'DM Mono',monospace;font-size:.7rem;color:var(--mut2);line-height:2.2">
+        <div style="color:var(--yellow)">■ margin</div>
+        <div style="color:var(--acc)">■ border</div>
+        <div style="color:var(--blue)">■ padding</div>
+        <div style="color:var(--ink)">■ content</div>
+      </div>
+    </div>
+  </div>
+  <h3>Padding &amp; Margin</h3>
+  <pre>/* Padding — space inside border */
+padding: 10px;                   /* all sides */
+padding: 10px 20px;              /* top-bottom  left-right */
+padding: 10px 20px 15px 5px;     /* top right bottom left */
+
+/* Margin — space outside border */
+margin: 20px;
+margin: 0 auto;                  /* center a block element */
+margin-top: 30px;
+margin-right: 15px;</pre>
+  <h3>Background Properties <span class="pyq-tag">PYQ 4M</span></h3>
+  <pre>background-color: #b0c4de;
+background-image: url('bg.jpg');
+background-repeat: no-repeat;     /* repeat | repeat-x | repeat-y */
+background-position: center top;
+background-attachment: fixed;     /* stays fixed on scroll */
+background-size: cover;           /* CSS3 */</pre>
+</section>
+
+<section id="css-fonts">
+  <h2>Fonts &amp; Text <span class="pyq-tag">PYQ 4M</span></h2>
+  <div class="demo-wrap">
+    <div class="demo-controls">
+      <label>Size <span class="demo-val" id="fs-val">16px</span><input type="range" min="10" max="34" value="16" oninput="setFS(this)"></label>
+      <label>Weight<select onchange="document.getElementById('font-demo').style.fontWeight=this.value"><option value="300">Light</option><option value="400" selected>Normal</option><option value="600">SemiBold</option><option value="bold">Bold</option></select></label>
+      <label>Align<select onchange="document.getElementById('font-demo').style.textAlign=this.value"><option>left</option><option>center</option><option>right</option><option>justify</option></select></label>
+      <label>Letter Spacing <span class="demo-val" id="ls-val">0px</span><input type="range" min="-2" max="10" value="0" oninput="setLS(this)"></label>
+    </div>
+    <div class="demo-preview">
+      <p id="font-demo" style="color:var(--ink);font-size:16px;max-width:400px">The quick brown fox jumps over the lazy dog</p>
+    </div>
+  </div>
+  <h3>Font Properties</h3>
+  <pre>font-family: 'Georgia', serif;   /* stack: tries Georgia first, falls back */
+font-size: 16px;                 /* px, em, rem, % */
+font-weight: bold;               /* normal | bold | 100–900 */
+font-style: italic;              /* normal | italic | oblique */
+font-variant: small-caps;        /* normal | small-caps */</pre>
+  <h3>Text Properties</h3>
+  <pre>text-align: center;              /* left | right | center | justify */
+text-decoration: underline;      /* none | underline | line-through | overline */
+text-transform: uppercase;       /* capitalize | uppercase | lowercase */
+text-indent: 30px;               /* first line indent */
+letter-spacing: 2px;             /* space between letters */
+word-spacing: 10px;              /* space between words */
+line-height: 1.6;                /* line height multiplier */
+white-space: nowrap;             /* prevent wrapping */</pre>
+  <h3>Link States — LoVe HAte Order <span class="pyq-tag">PYQ 4M</span></h3>
+  <pre>a:link    { color: #0077ff; text-decoration: none; }   /* unvisited */
+a:visited { color: #9900cc; }                          /* been here */
+a:hover   { color: #ff4400; text-decoration: underline; } /* mouse over */
+a:active  { color: #ff0000; }                          /* clicking now */
+
+/* MUST be in this order: Link Visited Hover Active */</pre>
+</section>
+
+<section id="css-borders">
+  <h2>Borders — Interactive Demo</h2>
+  <div class="demo-wrap">
+    <div class="demo-controls">
+      <label>Style<select id="b-style" onchange="updateBorder()"><option>solid</option><option>dashed</option><option>dotted</option><option>double</option><option>groove</option><option>ridge</option><option>inset</option><option>outset</option></select></label>
+      <label>Width <span class="demo-val" id="bw-val">2px</span><input type="range" min="1" max="14" value="2" oninput="setBW(this)"></label>
+      <label>Color <input type="color" value="#e8673a" id="b-color" oninput="updateBorder()"></label>
+      <label>Radius <span class="demo-val" id="br-val">4px</span><input type="range" min="0" max="60" value="4" oninput="setBR(this)"></label>
+    </div>
+    <div class="demo-preview">
+      <div id="border-box" style="border:2px solid #e8673a;border-radius:4px;background:var(--sur2);color:var(--ink);padding:1rem 2.5rem;font-family:'DM Mono',monospace;font-size:.8rem;transition:all .2s">border demo</div>
+    </div>
+  </div>
+  <pre>border: 2px solid #e8673a;       /* shorthand */
+border-top: 3px dashed blue;
+border-radius: 10px;             /* rounded corners (CSS3) */
+border-radius: 50%;              /* circle */
+box-shadow: 4px 4px 10px rgba(0,0,0,0.3); /* CSS3 shadow */</pre>
+</section>
+
+<section id="css-lists">
+  <h2>Lists &amp; Links Styling</h2>
+  <div class="grid2">
+    <div>
+      <h3>List Style</h3>
+      <pre>/* Unordered types */
+ul { list-style-type: disc; }    /* ● default */
+ul { list-style-type: circle; }  /* ○ */
+ul { list-style-type: square; }  /* ■ */
+ul { list-style-type: none; }    /* remove bullets */
+
+/* Ordered types */
+ol { list-style-type: decimal; }      /* 1,2,3 */
+ol { list-style-type: upper-roman; }  /* I,II,III */
+ol { list-style-type: lower-alpha; }  /* a,b,c */
+
+/* Image bullet */
+ul { list-style-image: url("arrow.gif"); }
+
+/* Position */
+ul { list-style-position: inside; }
+ol { list-style-position: outside; }</pre>
+    </div>
+    <div>
+      <h3>Pseudo-elements <span class="pyq-tag">PYQ 4M</span></h3>
+      <pre>/* ::first-line — style first line */
+p::first-line {
+  color: orange;
+  font-weight: bold;
+}
+
+/* ::first-letter — drop cap */
+p::first-letter {
+  font-size: 2em;
+  float: left;
+}
+
+/* ::before / ::after */
+h2::before {
+  content: "→ ";
+  color: var(--acc);
+}
+
+/* :nth-child() */
+li:nth-child(odd) {
+  background: rgba(255,255,255,.05);
+}</pre>
+    </div>
+  </div>
+</section>
+
+<section id="css-positioning">
+  <h2>CSS Positioning <span class="pyq-tag">PYQ 4M</span></h2>
+  <table>
+    <tr><th>Value</th><th>Behaviour</th></tr>
+    <tr><td><code>static</code></td><td>Default. Normal document flow. top/left/z-index have no effect.</td></tr>
+    <tr><td><code>relative</code></td><td>Offset from its own normal position. Still occupies space in flow.</td></tr>
+    <tr><td><code>absolute</code></td><td>Removed from flow. Positioned relative to nearest non-static parent.</td></tr>
+    <tr><td><code>fixed</code></td><td>Stays fixed on screen — doesn't move on scroll.</td></tr>
+    <tr><td><code>sticky</code></td><td>Relative until hits scroll threshold, then sticks like fixed.</td></tr>
+  </table>
+  <div class="pos-demo">
+    <div class="pos-box" style="position:static;background:rgba(91,141,238,.65);margin:10px">static</div>
+    <div class="pos-box" style="position:relative;top:5px;left:90px;background:rgba(232,103,58,.75)">relative<br><span style="font-size:.55rem;opacity:.7">+top +left</span></div>
+    <div class="pos-box" style="position:absolute;top:10px;right:10px;background:rgba(61,214,140,.75)">absolute<br><span style="font-size:.55rem;opacity:.7">top:10 right:10</span></div>
+    <div class="pos-box" style="position:absolute;bottom:8px;left:50%;transform:translateX(-50%);background:rgba(167,139,250,.75)">bottom:8</div>
+  </div>
+  <pre>/* Relative: offset from normal position */
+h3 { position: relative; top: 15px; left: 50px; }
+
+/* Absolute: exact pixel position from parent */
+.tooltip { position: absolute; top: 0; right: 0; }
+
+/* Fixed: stays on screen during scroll */
+.navbar { position: fixed; top: 0; left: 0; width: 100%; z-index: 100; }</pre>
+</section>
+
+<section id="css-float">
+  <h2>Float &amp; Z-index <span class="pyq-tag">PYQ 4M</span></h2>
+  <h3>Float</h3>
+  <p>Float pushes an element left or right so text and inline elements wrap around it. Classic use: image beside text.</p>
+  <pre>img.left  { float: left;  margin: 0 10px 10px 0; }
+img.right { float: right; margin: 0 0 10px 10px; }
+
+/* Clearfix — stop wrapping after floated element */
+.clearfix::after {
+  content: "";
+  display: table;
+  clear: both;
+}</pre>
+  <h3>Z-index (Layers) <span class="pyq-tag">PYQ 4M</span></h3>
+  <p>Controls stacking order. Higher <code>z-index</code> = on top. Element must have a <code>position</code> set (not <code>static</code>).</p>
+  <div class="demo-wrap">
+    <div class="demo-controls">
+      <label>Box A z-index <span class="demo-val" id="za-val">5</span><input type="range" min="1" max="10" value="5" oninput="setZ(this,'za-val','zbox-a')"></label>
+      <label>Box B z-index <span class="demo-val" id="zb-val">3</span><input type="range" min="1" max="10" value="3" oninput="setZ(this,'zb-val','zbox-b')"></label>
+    </div>
+    <div class="demo-preview" style="min-height:110px;position:relative">
+      <div id="zbox-a" style="position:absolute;top:18px;left:55px;width:100px;height:66px;background:rgba(232,103,58,.82);border-radius:6px;display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:.72rem;color:#fff;z-index:5">Box A</div>
+      <div id="zbox-b" style="position:absolute;top:32px;left:100px;width:100px;height:66px;background:rgba(91,141,238,.88);border-radius:6px;display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:.72rem;color:#fff;z-index:3">Box B</div>
+    </div>
+  </div>
+  <pre>/* Both must have position set */
+.modal   { position: fixed;    z-index: 1000; }
+.overlay { position: absolute; z-index: 999;  }
+.content { position: relative; z-index: 1;    }</pre>
+</section>
+
+<section id="css3">
+  <h2>CSS3 &amp; Animations <span class="pyq-tag">PYQ 7M</span></h2>
+  <p>CSS3 is backwards-compatible with CSS2. It's split into modules. Key additions: transitions, transforms, keyframe animations, gradients, shadows, border-radius.</p>
+  <h3>Transitions</h3>
+  <pre>/* Smooth change when property changes */
+button {
+  background: #e8673a;
+  transition: background 0.3s ease, transform 0.2s;
+}
+button:hover {
+  background: #5b8dee;
+  transform: scale(1.05);
+}</pre>
+  <h3>Transforms</h3>
+  <pre>transform: rotate(45deg);
+transform: scale(1.5);
+transform: translateX(50px);
+transform: skew(10deg, 5deg);
+transform: rotate(45deg) scale(1.2) translateX(20px); /* combine */</pre>
+  <div class="demo-wrap">
+    <div class="demo-controls">
+      <label>Rotate <span class="demo-val" id="rot-val">0°</span><input type="range" min="0" max="360" value="0" oninput="setRot(this)"></label>
+      <label>Scale <span class="demo-val" id="sc-val">1.0</span><input type="range" min="5" max="20" value="10" oninput="setSc(this)"></label>
+      <label>TranslateX <span class="demo-val" id="tx-val">0px</span><input type="range" min="-80" max="80" value="0" oninput="setTX(this)"></label>
+    </div>
+    <div class="demo-preview">
+      <div id="transform-box" class="demo-box" style="transition:transform .12s">transform me</div>
+    </div>
+  </div>
+  <h3>Keyframe Animations <span class="pyq-tag">PYQ 7M</span></h3>
+  <pre>/* Define animation */
+@keyframes spinIt {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+/* Apply — 360° rotation in 8 seconds (PYQ!) */
+.rectangle {
+  width: 100px; height: 60px;
+  background: red;
+  animation: spinIt 8s linear infinite;
+}
+
+/* Multi-step */
+@keyframes colorChange {
+  0%   { background: red; }
+  50%  { background: blue; }
+  100% { background: green; }
+}</pre>
+  <div class="demo-wrap">
+    <div class="demo-controls">
+      <label>Animation<select id="anim-pick" onchange="setAnim()"><option value="spin360">rotate 360°</option><option value="pulse">scale pulse</option><option value="bounce">bounce</option></select></label>
+      <label>Duration <span class="demo-val" id="dur-val">2s</span><input type="range" min="1" max="8" value="2" oninput="setDur(this)"></label>
+    </div>
+    <div class="demo-preview">
+      <div class="anim-box" id="anim-demo" style="animation:spin360 2s linear infinite">box</div>
+    </div>
+  </div>
+  <h3>CSS3 Modules</h3>
+  <div class="grid3">
+    <div class="card"><h3>Selectors</h3><p style="margin:0;font-size:.82rem"><code>:nth-child()</code>, <code>:not()</code>, attribute selectors</p></div>
+    <div class="card"><h3>Box Model</h3><p style="margin:0;font-size:.82rem"><code>box-sizing</code>, <code>border-radius</code>, <code>box-shadow</code></p></div>
+    <div class="card"><h3>Backgrounds</h3><p style="margin:0;font-size:.82rem">Multiple BGs, <code>background-size</code>, gradients</p></div>
+    <div class="card"><h3>Text Effects</h3><p style="margin:0;font-size:.82rem"><code>text-shadow</code>, <code>word-wrap</code>, <code>@font-face</code></p></div>
+    <div class="card"><h3>Transforms</h3><p style="margin:0;font-size:.82rem">2D &amp; 3D: rotate, scale, translate, skew</p></div>
+    <div class="card"><h3>Multi-Column</h3><p style="margin:0;font-size:.82rem"><code>column-count</code>, <code>column-gap</code> — newspaper layout</p></div>
+  </div>
+  <div class="callout callout-tip"><strong>PYQ Favourite:</strong> "Rotate rectangle 360° in 8 seconds" → <code>animation: spinIt 8s linear infinite</code> with <code>@keyframes</code> from <code>rotate(0deg)</code> to <code>rotate(360deg)</code>.</div>
+</section>
+
+</div><!-- end tab-css -->
+
+<!-- ════════════════ JS TAB ════════════════ -->
+<div class="tab-pane" id="tab-js">
+
+<section id="js-intro">
+  <h2>JavaScript Introduction <span class="pyq-tag">PYQ 3M</span></h2>
+  <p><strong>JavaScript</strong> is a lightweight, interpreted scripting language that runs in the browser. It makes pages dynamic — responding to user actions, updating content without reloading.</p>
+  <div class="grid2">
+    <div class="card"><h3>Client-Side JS</h3><ul><li>Runs in the browser</li><li>Uses browser resources, not server</li><li>Saves bandwidth</li><li>Code is visible to users</li><li>Can be disabled by user</li></ul></div>
+    <div class="card"><h3>Server-Side JS</h3><ul><li>Runs on web server (Node.js)</li><li>Can access databases directly</li><li>Logic is hidden from user</li><li>Generates dynamic HTML responses</li><li>Cannot be disabled by user</li></ul></div>
+  </div>
+  <h3>Embedding JS in HTML <span class="pyq-tag">PYQ 3M</span></h3>
+  <pre>&lt;!-- Inline in body --&gt;
+&lt;script type="text/javascript"&gt;
+  document.write("&lt;h1&gt;Hello World&lt;/h1&gt;");
+&lt;/script&gt;
+
+&lt;!-- External file --&gt;
+&lt;script src="app.js"&gt;&lt;/script&gt;</pre>
+  <h3>JS vs Java <span class="pyq-tag">PYQ 3M</span></h3>
+  <table>
+    <tr><th>JavaScript</th><th>Java</th></tr>
+    <tr><td>Dynamically typed</td><td>Statically typed</td></tr>
+    <tr><td>Prototype-based OOP</td><td>Class-based OOP</td></tr>
+    <tr><td>Runs in browser</td><td>Runs on JVM</td></tr>
+    <tr><td>Function-based scoping</td><td>Block-based scoping</td></tr>
+    <tr><td>No compilation needed</td><td>Must be compiled first</td></tr>
+  </table>
+</section>
+
+<section id="js-variables">
+  <h2>Variables &amp; Arrays <span class="pyq-tag">PYQ 3M</span></h2>
+  <pre>// Three ways to declare variables
+var  name = "Sujal";   // function-scoped, old style
+let  age  = 20;        // block-scoped, preferred
+const PI  = 3.14;      // block-scoped, cannot reassign
+
+// Multiple in one line
+var name = "Sujal", age = 20, city = "Ahmedabad";
+
+// Undefined by default
+var x;
+console.log(x);  // undefined</pre>
+  <h3>Arrays</h3>
+  <pre>// Three ways to create
+var cars = new Array("Tata", "BMW", "Honda");   // constructor
+var cars = ["Tata", "BMW", "Honda"];            // literal (preferred)
+
+// Access by index (starts at 0)
+console.log(cars[0]);   // "Tata"
+cars[0] = "Mahindra";   // modify
+
+// Useful methods
+cars.push("Ford");           // add to end
+cars.pop();                  // remove from end
+cars.length;                 // 3
+cars.indexOf("BMW");         // 1
+
+// Iterate
+for (var i = 0; i &lt; cars.length; i++) {
+  console.log(cars[i]);
+}</pre>
+</section>
+
+<section id="js-functions">
+  <h2>Functions &amp; Loops <span class="pyq-tag">PYQ 7M</span></h2>
+  <pre>// Function declaration
+function greet(name) {
+  return "Hello, " + name + "!";
+}
+console.log(greet("Sujal"));   // Hello, Sujal!
+
+// Function expression
+var add = function(a, b) { return a + b; };
+
+// Arrow function (ES6)
+const multiply = (a, b) => a * b;</pre>
+  <h3>Loops</h3>
+  <pre>// for loop
+for (var i = 0; i &lt; 5; i++) {
+  console.log(i);      // 0 1 2 3 4
+}
+
+// while loop
+var i = 0;
+while (i &lt; 5) { console.log(i); i++; }
+
+// do-while — runs at least once
+do { console.log(i); i++; } while (i &lt; 5);
+
+// for-in — loop over object properties
+var person = { name: "Sujal", age: 20 };
+for (var key in person) {
+  console.log(key + ": " + person[key]);
+}</pre>
+  <h3>Prime Number Check <span class="pyq-tag">PYQ 7M</span></h3>
+  <pre>function isPrime(n) {
+  if (n &lt; 2) return false;
+  for (var i = 2; i &lt; n; i++) {
+    if (n % i === 0) return false;
+  }
+  return true;
+}
+
+// Print all primes up to N (e.g. N=10 → 2,3,5,7)
+function printPrimes(n) {
+  var result = [];
+  for (var i = 2; i &lt;= n; i++) {
+    if (isPrime(i)) result.push(i);
+  }
+  console.log(result.join(", "));
+}
+printPrimes(10);   // 2, 3, 5, 7</pre>
+
+  <!-- Live Runner -->
+  <div class="demo-wrap">
+    <div class="demo-controls" style="justify-content:space-between">
+      <span style="font-size:.72rem;color:var(--mut2);font-family:'DM Mono',monospace">▶ live JS runner</span>
+      <div style="display:flex;gap:.5rem">
+        <button onclick="runCode('jr1','jo1')" style="background:var(--green);border:none;color:#000;font-family:'DM Mono',monospace;font-size:.7rem;padding:.25rem .7rem;border-radius:5px;cursor:pointer">Run ▶</button>
+        <button onclick="clrCode('jo1')" style="background:var(--sur3);border:1px solid var(--bor2);color:var(--mut2);font-family:'DM Mono',monospace;font-size:.7rem;padding:.25rem .7rem;border-radius:5px;cursor:pointer">Clear</button>
+      </div>
+    </div>
+    <textarea id="jr1" spellcheck="false" style="width:100%;background:var(--code);color:#b0b8cc;font-family:'DM Mono',monospace;font-size:.77rem;padding:1rem;border:none;border-bottom:1px solid var(--bor);resize:vertical;min-height:110px;outline:none">function isPrime(n) {
+  if (n &lt; 2) return false;
+  for (var i = 2; i &lt; n; i++) {
+    if (n % i === 0) return false;
+  }
+  return true;
+}
+// print primes up to 20
+for (var i=2; i&lt;=20; i++) {
+  if (isPrime(i)) console.log(i);
+}</textarea>
+    <pre id="jo1" style="display:none;margin:0;border:none;border-top:1px solid var(--bor);border-radius:0;background:rgba(61,214,140,.05);color:var(--green)"></pre>
+  </div>
+</section>
+
+<section id="js-conditions">
+  <h2>Conditions &amp; Switch</h2>
+  <pre>// if / else if / else
+var marks = 75;
+if (marks >= 70)      { console.log("Distinction"); }
+else if (marks >= 60) { console.log("First Class"); }
+else if (marks >= 50) { console.log("Pass");        }
+else                  { console.log("Fail");         }
+
+// Ternary operator
+var result = (marks >= 50) ? "Pass" : "Fail";
+
+// switch
+var day = 2;
+switch(day) {
+  case 1:  console.log("Monday");  break;
+  case 2:  console.log("Tuesday"); break;
+  default: console.log("Other");
+}</pre>
+</section>
+
+<section id="js-dom">
+  <h2>DOM — Document Object Model <span class="pyq-tag">PYQ 4M</span></h2>
+  <p>The DOM is a tree of all HTML elements as objects. JavaScript can find, change, add, or delete any element.</p>
+  <div class="callout callout-info"><strong>DOM Tree:</strong> document → html → head / body → elements → attributes, text</div>
+  <h3>Selecting Elements</h3>
+  <pre>document.getElementById("demo");           // by id
+document.getElementsByClassName("box");    // by class → HTMLCollection
+document.getElementsByTagName("p");        // by tag → HTMLCollection
+document.querySelector(".box");            // first match (CSS selector)
+document.querySelectorAll(".box");         // all matches → NodeList</pre>
+  <h3>Manipulating Elements</h3>
+  <pre>var el = document.getElementById("demo");
+
+// Change content
+el.innerHTML  = "&lt;b&gt;New HTML&lt;/b&gt;";
+el.innerText  = "Plain text only";
+el.textContent = "Text content";
+
+// Change style
+el.style.color = "red";
+el.style.fontSize = "20px";
+
+// Change attribute
+el.setAttribute("href", "https://example.com");
+el.getAttribute("class");
+
+// Add / remove class
+el.classList.add("active");
+el.classList.remove("active");
+el.classList.toggle("active");</pre>
+  <h3>document Object <span class="pyq-tag">PYQ 4M</span></h3>
+  <pre>// Access form data via DOM
+var form = document.forms["myForm"];
+var val  = document.forms["myForm"].email.value;
+
+// OR by index
+document.forms[0].elements[0].value;
+
+// Set background / foreground
+document.bgColor = "#333333";
+document.fgColor = "#ffffff";</pre>
+</section>
+
+<section id="js-events">
+  <h2>Event Handling <span class="pyq-tag">PYQ 7M</span></h2>
+  <p>Events let JS respond to user actions. All event handlers start with <code>on</code>.</p>
+  <h3>Common Events</h3>
+  <table>
+    <tr><th>Event</th><th>Trigger</th></tr>
+    <tr><td><code>onclick</code></td><td>Mouse click</td></tr>
+    <tr><td><code>ondblclick</code></td><td>Double click</td></tr>
+    <tr><td><code>onmouseover</code></td><td>Mouse enters element</td></tr>
+    <tr><td><code>onmouseout</code></td><td>Mouse leaves element</td></tr>
+    <tr><td><code>onkeydown</code></td><td>Key pressed down</td></tr>
+    <tr><td><code>onkeyup</code></td><td>Key released</td></tr>
+    <tr><td><code>onload</code></td><td>Page/image fully loaded</td></tr>
+    <tr><td><code>onsubmit</code></td><td>Form submitted</td></tr>
+    <tr><td><code>onchange</code></td><td>Input value changed</td></tr>
+    <tr><td><code>onfocus</code></td><td>Element receives focus</td></tr>
+    <tr><td><code>onblur</code></td><td>Element loses focus</td></tr>
+  </table>
+  <h3>Event Examples <span class="pyq-tag">PYQ 7M</span></h3>
+  <pre>&lt;!-- Inline event --&gt;
+&lt;button onclick="alert('Clicked!')"&gt;Click Me&lt;/button&gt;
+
+&lt;!-- Mouse over/out on heading (PYQ) --&gt;
+&lt;h2 onmouseover="this.style.color='green'"
+    onmouseout="this.style.color='red'"&gt;
+  Hover over me
+&lt;/h2&gt;
+
+&lt;!-- addEventListener (modern) --&gt;
+&lt;script&gt;
+document.getElementById("btn").addEventListener("click", function() {
+  document.getElementById("demo").innerHTML = "Button was clicked!";
+});
+&lt;/script&gt;
+
+&lt;!-- Window open/close (PYQ) --&gt;
+var child;
+function openWin()  { child = window.open("child.html","","width=400,height=300"); }
+function closeChild() { child.close(); }
+function closeMain()  { window.close(); }</pre>
+</section>
+
+<section id="js-popups">
+  <h2>Popup Boxes <span class="pyq-tag">PYQ 3M</span></h2>
+  <div class="grid3">
+    <div class="card"><h3>alert()</h3><p style="font-size:.82rem;margin:0">Displays a message. User clicks OK to dismiss. No return value.</p><pre style="margin-top:.6rem">alert("Hello!");</pre></div>
+    <div class="card"><h3>confirm()</h3><p style="font-size:.82rem;margin:0">Ask yes/no. Returns <code>true</code> (OK) or <code>false</code> (Cancel).</p><pre style="margin-top:.6rem">var ok = confirm("Delete?");
+if (ok) { /* delete */ }</pre></div>
+    <div class="card"><h3>prompt()</h3><p style="font-size:.82rem;margin:0">Ask for input. Returns the string entered, or <code>null</code>.</p><pre style="margin-top:.6rem">var name = prompt("Your name?");
+alert("Hi " + name);</pre></div>
+  </div>
+  <div class="demo-wrap">
+    <div class="demo-controls"><span style="font-size:.72rem;color:var(--mut2);font-family:'DM Mono',monospace">try popup boxes live</span></div>
+    <div class="demo-preview" style="gap:.7rem;flex-wrap:wrap">
+      <button onclick="alert('Hello from alert!')" style="background:var(--sur3);border:1px solid var(--bor2);color:var(--ink);padding:.45rem 1rem;border-radius:7px;cursor:pointer;font-family:'DM Mono',monospace;font-size:.75rem">alert()</button>
+      <button onclick="var r=confirm('Are you sure?'); document.getElementById('popup-out').textContent='confirm() → '+r" style="background:var(--sur3);border:1px solid var(--bor2);color:var(--ink);padding:.45rem 1rem;border-radius:7px;cursor:pointer;font-family:'DM Mono',monospace;font-size:.75rem">confirm()</button>
+      <button onclick="var r=prompt('Enter your name:'); document.getElementById('popup-out').textContent='prompt() → '+r" style="background:var(--sur3);border:1px solid var(--bor2);color:var(--ink);padding:.45rem 1rem;border-radius:7px;cursor:pointer;font-family:'DM Mono',monospace;font-size:.75rem">prompt()</button>
+      <span id="popup-out" style="font-family:'DM Mono',monospace;font-size:.75rem;color:var(--green)"></span>
+    </div>
+  </div>
+</section>
+
+<section id="js-validation">
+  <h2>Form Validation <span class="pyq-tag">PYQ 7M</span></h2>
+  <p>Validate before submitting — saves a server round-trip and gives instant feedback to users.</p>
+  <h3>Mobile Number Validation <span class="pyq-tag">PYQ 4M</span></h3>
+  <pre>function validateMobile() {
+  var mob = document.getElementById("mobile").value;
+
+  // Check 1: must be numeric only
+  if (isNaN(mob)) {
+    alert("Mobile number must contain digits only!");
+    return false;
+  }
+  // Check 2: must be exactly 10 digits
+  if (mob.length !== 10) {
+    alert("Mobile number must be exactly 10 digits!");
+    return false;
+  }
+  alert("Valid mobile number!");
+  return true;
+}</pre>
+  <h3>Full Registration Validation <span class="pyq-tag">PYQ 7M</span></h3>
+  <pre>function validate() {
+  var name = document.getElementById("name").value;
+  var pass = document.getElementById("pass").value;
+  var mob  = document.getElementById("mob").value;
+
+  // All fields compulsory
+  if (name === "" || pass === "" || mob === "") {
+    alert("All fields are required!");
+    return false;
+  }
+  // Password: 6–8 chars
+  if (pass.length &lt; 6 || pass.length &gt; 8) {
+    alert("Password must be 6 to 8 characters!");
+    return false;
+  }
+  // Mobile: 10 digits
+  if (isNaN(mob) || mob.length !== 10) {
+    alert("Enter a valid 10-digit mobile number!");
+    return false;
+  }
+  return true;  // allow submit
+}</pre>
+  <h3>Email Validation using RegEx <span class="pyq-tag">PYQ 7M</span></h3>
+  <pre>function validateEmail(email) {
+  // Pattern: chars @ chars . chars
+  var pattern = /^[\w\.-]+@[\w\.-]+\.\w+$/;
+  var regex = new RegExp(pattern);
+  return regex.test(email);
+}
+
+// Usage
+function checkForm() {
+  var email = document.getElementById("email").value;
+  if (!validateEmail(email)) {
+    alert("Invalid email address!");
+    return false;
+  }
+  return true;
+}</pre>
+  <h3>Password Strength Validation <span class="pyq-tag">PYQ 7M</span></h3>
+  <pre>function strongPassword(pass) {
+  // At least 8 chars, one capital, one number, one special char
+  var hasUpper   = /[A-Z]/.test(pass);
+  var hasNumber  = /[0-9]/.test(pass);
+  var hasSpecial = /[!@#$%^&*]/.test(pass);
+  var longEnough = pass.length >= 8;
+
+  if (!longEnough) { alert("Min 8 characters"); return false; }
+  if (!hasUpper)   { alert("Need 1 capital letter"); return false; }
+  if (!hasNumber)  { alert("Need 1 number"); return false; }
+  if (!hasSpecial) { alert("Need 1 special char"); return false; }
+  return true;
+}</pre>
+</section>
+
+<section id="js-objects">
+  <h2>Objects <span class="pyq-tag">PYQ 4M</span></h2>
+  <pre>// Object literal (direct instance)
+var person = {
+  firstname: "Sujal",
+  lastname:  "Shah",
+  age:       20,
+  greet: function() {
+    return "Hi, I'm " + this.firstname;
+  }
+};
+console.log(person.firstname);   // Sujal
+console.log(person["age"]);      // 20
+console.log(person.greet());     // Hi, I'm Sujal
+
+// Constructor function
+function Person(fname, lname, age) {
+  this.firstname = fname;
+  this.lastname  = lname;
+  this.age       = age;
+}
+var p1 = new Person("Narendra", "Modi", 70);
+console.log(p1.firstname);  // Narendra</pre>
+</section>
+
+<section id="js-callbacks">
+  <h2>Callbacks <span class="pyq-tag">PYQ 3M</span> <span class="pyq-tag">PYQ 4M</span></h2>
+  <p>A <strong>callback</strong> is a function passed as an argument to another function, to be called later. Used heavily for async operations.</p>
+  <pre>// Basic callback
+function process(callback) {
+  console.log("Processing...");
+  callback();   // call the passed function
+}
+
+process(function() {
+  console.log("Done! Callback executed.");
+});
+
+// Real-world example: array methods
+var nums = [3, 1, 4, 1, 5, 9];
+
+// sort() takes a callback comparator
+nums.sort(function(a, b) { return a - b; });
+console.log(nums);   // [1, 1, 3, 4, 5, 9]
+
+// forEach takes a callback
+nums.forEach(function(n) { console.log(n); });
+
+// Callback with parameters
+function doMath(a, b, operation) {
+  return operation(a, b);
+}
+var result = doMath(10, 5, function(x, y) { return x + y; });
+console.log(result);  // 15</pre>
+</section>
+
+<section id="js-json">
+  <h2>JSON <span class="pyq-tag">PYQ 4M</span></h2>
+  <p><strong>JSON (JavaScript Object Notation)</strong> is a lightweight data format for storing and exchanging data. It's text-based, language-independent, and easy for both humans and machines to read.</p>
+  <div class="callout callout-info"><strong>Key Rule:</strong> JSON keys <em>must</em> be in double quotes. Values can be: string, number, boolean, array, object, or null.</div>
+  <h3>JSON Syntax</h3>
+  <pre>// JSON object
+{
+  "name": "Sujal",
+  "age": 20,
+  "isStudent": true,
+  "courses": ["HTML", "CSS", "JS"],
+  "address": {
+    "city": "Ahmedabad",
+    "state": "Gujarat"
+  }
+}</pre>
+  <h3>JSON.stringify() — JS Object → JSON String <span class="pyq-tag">PYQ 4M</span></h3>
+  <pre>var student = {
+  name: "Sujal",
+  age: 20,
+  courses: ["HTML", "CSS"]
+};
+
+// Convert to JSON string (for sending to server)
+var jsonStr = JSON.stringify(student);
+console.log(jsonStr);
+// Output: {"name":"Sujal","age":20,"courses":["HTML","CSS"]}
+
+// Pretty print with indentation
+var pretty = JSON.stringify(student, null, 2);
+console.log(pretty);</pre>
+  <h3>JSON.parse() — JSON String → JS Object <span class="pyq-tag">PYQ 4M</span></h3>
+  <pre>var jsonStr = '{"name":"Sujal","age":20}';
+
+// Convert back to JS object (from server response)
+var obj = JSON.parse(jsonStr);
+console.log(obj.name);   // Sujal
+console.log(obj.age);    // 20</pre>
+  <h3>Practical Example — Fetch &amp; Use JSON</h3>
+  <pre>// Simulate receiving JSON from a server
+var serverResponse = '{"status":"ok","user":{"id":1,"name":"Sujal"}}';
+
+var data = JSON.parse(serverResponse);
+console.log(data.status);       // ok
+console.log(data.user.name);    // Sujal
+
+// Send data to server
+var formData = { email: "sujal@example.com", roll: "21CE001" };
+var payload  = JSON.stringify(formData);
+// payload = '{"email":"sujal@example.com","roll":"21CE001"}'</pre>
+
+  <!-- Live JSON runner -->
+  <div class="demo-wrap">
+    <div class="demo-controls" style="justify-content:space-between">
+      <span style="font-size:.72rem;color:var(--mut2);font-family:'DM Mono',monospace">▶ try JSON live</span>
+      <div style="display:flex;gap:.5rem">
+        <button onclick="runCode('jr2','jo2')" style="background:var(--green);border:none;color:#000;font-family:'DM Mono',monospace;font-size:.7rem;padding:.25rem .7rem;border-radius:5px;cursor:pointer">Run ▶</button>
+        <button onclick="clrCode('jo2')" style="background:var(--sur3);border:1px solid var(--bor2);color:var(--mut2);font-family:'DM Mono',monospace;font-size:.7rem;padding:.25rem .7rem;border-radius:5px;cursor:pointer">Clear</button>
+      </div>
+    </div>
+    <textarea id="jr2" spellcheck="false" style="width:100%;background:var(--code);color:#b0b8cc;font-family:'DM Mono',monospace;font-size:.77rem;padding:1rem;border:none;border-bottom:1px solid var(--bor);resize:vertical;min-height:100px;outline:none">var obj = { name: "Sujal", age: 20, skills: ["HTML","CSS","JS"] };
+var str = JSON.stringify(obj, null, 2);
+console.log(str);
+var back = JSON.parse(str);
+console.log(back.skills[2]);</textarea>
+    <pre id="jo2" style="display:none;margin:0;border:none;border-top:1px solid var(--bor);border-radius:0;background:rgba(61,214,140,.05);color:var(--green)"></pre>
+  </div>
+</section>
+
+<section id="js-errors">
+  <h2>Error Handling <span class="pyq-tag">PYQ 3M</span></h2>
+  <p>Use <code>try...catch...finally</code> to handle runtime errors gracefully without crashing the page.</p>
+  <pre>try {
+  // code that might fail
+  var result = riskyFunction();
+  console.log(result);
+}
+catch(e) {
+  // runs if error occurs in try block
+  console.log("Error: " + e.message);
+}
+finally {
+  // always runs, error or not
+  console.log("Cleanup done.");
+}
+
+// Throw your own error
+function divide(a, b) {
+  if (b === 0) throw new Error("Cannot divide by zero!");
+  return a / b;
+}
+
+try {
+  console.log(divide(10, 0));
+} catch(e) {
+  console.log(e.message);   // Cannot divide by zero!
+}</pre>
+</section>
+
+<section id="js-builtins">
+  <h2>Built-in Objects &amp; Methods <span class="pyq-tag">PYQ 4M</span></h2>
+  <h3>String Methods</h3>
+  <pre>var s = "Hello World";
+s.toUpperCase();         // "HELLO WORLD"
+s.toLowerCase();         // "hello world"
+s.length;                // 11
+s.indexOf("World");      // 6
+s.slice(0, 5);           // "Hello"
+s.substring(6, 11);      // "World"
+s.replace("World","JS"); // "Hello JS"
+s.charAt(0);             // "H"
+s.split(" ");            // ["Hello", "World"]</pre>
+  <h3>Math Object</h3>
+  <pre>Math.PI;          // 3.14159...
+Math.sqrt(16);    // 4
+Math.pow(2, 8);   // 256
+Math.abs(-7);     // 7
+Math.round(4.6);  // 5
+Math.floor(4.9);  // 4
+Math.ceil(4.1);   // 5
+Math.max(3,7,2);  // 7
+Math.min(3,7,2);  // 2
+Math.random();    // 0.0 to 0.9999...</pre>
+  <h3>Date Object</h3>
+  <pre>var d = new Date();
+d.getFullYear();   // e.g. 2025
+d.getMonth();      // 0–11 (0 = January!)
+d.getDate();       // 1–31
+d.getDay();        // 0–6 (0 = Sunday)
+d.getHours();      // 0–23
+d.getMinutes();    // 0–59
+d.toLocaleDateString(); // "11/3/2025"</pre>
+
+  <!-- Live general runner -->
+  <div class="demo-wrap">
+    <div class="demo-controls" style="justify-content:space-between">
+      <span style="font-size:.72rem;color:var(--mut2);font-family:'DM Mono',monospace">▶ sandbox — try anything</span>
+      <div style="display:flex;gap:.5rem">
+        <button onclick="runCode('jr3','jo3')" style="background:var(--green);border:none;color:#000;font-family:'DM Mono',monospace;font-size:.7rem;padding:.25rem .7rem;border-radius:5px;cursor:pointer">Run ▶</button>
+        <button onclick="clrCode('jo3')" style="background:var(--sur3);border:1px solid var(--bor2);color:var(--mut2);font-family:'DM Mono',monospace;font-size:.7rem;padding:.25rem .7rem;border-radius:5px;cursor:pointer">Clear</button>
+      </div>
+    </div>
+    <textarea id="jr3" spellcheck="false" style="width:100%;background:var(--code);color:#b0b8cc;font-family:'DM Mono',monospace;font-size:.77rem;padding:1rem;border:none;border-bottom:1px solid var(--bor);resize:vertical;min-height:100px;outline:none">// Palindrome check
+function isPalindrome(n) {
+  var s = String(n);
+  return s === s.split('').reverse().join('');
+}
+console.log(isPalindrome(121));   // true
+console.log(isPalindrome(123));   // false
+console.log(new Date().toLocaleDateString());</textarea>
+    <pre id="jo3" style="display:none;margin:0;border:none;border-top:1px solid var(--bor);border-radius:0;background:rgba(61,214,140,.05);color:var(--green)"></pre>
+  </div>
+</section>
+
+</div><!-- end tab-js -->
+
+</div><!-- main-inner -->
+</main>
+</div><!-- layout -->
+
+<script>
+// ── TAB SWITCH ──
+function switchTab(tab) {
+  document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  document.querySelector('.t-' + tab).classList.add('active');
+  const showCSS = tab === 'css';
+  document.querySelectorAll('.sl-css').forEach(l => l.style.display = showCSS ? 'flex' : 'none');
+  document.getElementById('sg-css').style.display = showCSS ? 'block' : 'none';
+  const showHTML = tab === 'html';
+  document.querySelectorAll('.sl-html').forEach(l => l.style.display = showHTML ? 'flex' : 'none');
+  document.getElementById('sg-html').style.display = showHTML ? 'block' : 'none';
+  const showJS = tab === 'js';
+  document.querySelectorAll('.sl-js').forEach(l => l.style.display = showJS ? 'flex' : 'none');
+  document.getElementById('sg-js').style.display = showJS ? 'block' : 'none';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  setTimeout(highlightSidebar, 80);
+}
+
+// ── SIDEBAR HIGHLIGHT ──
+function highlightSidebar() {
+  const scrollY = window.scrollY + 90;
+  const active = document.querySelector('.tab-pane.active');
+  if (!active) return;
+  active.querySelectorAll('section[id]').forEach(sec => {
+    const link = document.querySelector('.sidebar a[href="#' + sec.id + '"]');
+    if (!link) return;
+    if (scrollY >= sec.offsetTop && scrollY < sec.offsetTop + sec.offsetHeight) {
+      document.querySelectorAll('.sidebar a').forEach(a => a.classList.remove('active'));
+      link.classList.add('active');
+    }
+  });
+}
+
+window.addEventListener('scroll', () => {
+  const d = document.documentElement;
+  const pct = d.scrollHeight > d.clientHeight ? (d.scrollTop / (d.scrollHeight - d.clientHeight)) * 100 : 0;
+  document.getElementById('pbar').style.width = pct + '%';
+  highlightSidebar();
+});
+
+document.querySelectorAll('.sidebar a').forEach(a => {
+  a.addEventListener('click', function(e) {
+    e.preventDefault();
+    const id = this.getAttribute('href').slice(1);
+    const target = document.getElementById(id);
+    if (!target) return;
+    const pane = target.closest('.tab-pane');
+    if (pane) switchTab(pane.id.replace('tab-', ''));
+    setTimeout(() => target.scrollIntoView({ behavior: 'smooth' }), 80);
+  });
+});
+
+// ── ACCORDION ──
+function toggleAcc(hdr) {
+  const isOpen = hdr.classList.contains('open');
+  hdr.classList.toggle('open', !isOpen);
+  hdr.nextElementSibling.classList.toggle('open', !isOpen);
+}
+
+// ── COPY BUTTONS ──
+document.querySelectorAll('pre').forEach(pre => {
+  const btn = document.createElement('button');
+  btn.className = 'copy-btn';
+  btn.textContent = 'copy';
+  btn.onclick = () => {
+    navigator.clipboard.writeText(pre.innerText.replace(/^copy$/m, '').trim());
+    btn.textContent = 'copied!';
+    btn.classList.add('ok');
+    setTimeout(() => { btn.textContent = 'copy'; btn.classList.remove('ok'); }, 1500);
+  };
+  pre.appendChild(btn);
+});
+
+// ── BOX MODEL DEMO ──
+function updateBox(wrap) {
+  const sliders = wrap.querySelectorAll('input[type=range]');
+  const p = sliders[0].value, b = sliders[1].value, m = sliders[2].value;
+  document.getElementById('pad-val').textContent = p + 'px';
+  document.getElementById('bor-val').textContent = b + 'px';
+  document.getElementById('mar-val').textContent = m + 'px';
+  document.getElementById('bm-padding').style.padding = p + 'px';
+  document.getElementById('bm-border').style.borderWidth = b + 'px';
+  document.getElementById('bm-margin').style.padding = m + 'px';
+}
+
+// ── FONT DEMO ──
+function setFS(i) { document.getElementById('fs-val').textContent = i.value+'px'; document.getElementById('font-demo').style.fontSize = i.value+'px'; }
+function setLS(i) { document.getElementById('ls-val').textContent = i.value+'px'; document.getElementById('font-demo').style.letterSpacing = i.value+'px'; }
+
+// ── BORDER DEMO ──
+function updateBorder() {
+  const s = document.getElementById('b-style').value;
+  const c = document.getElementById('b-color').value;
+  const w = document.getElementById('bw-val').textContent;
+  document.getElementById('border-box').style.border = `${w} ${s} ${c}`;
+}
+function setBW(i) { document.getElementById('bw-val').textContent = i.value+'px'; updateBorder(); }
+function setBR(i) { document.getElementById('br-val').textContent = i.value+'px'; document.getElementById('border-box').style.borderRadius = i.value+'px'; }
+
+// ── Z-INDEX DEMO ──
+function setZ(i, vid, bid) { document.getElementById(vid).textContent = i.value; document.getElementById(bid).style.zIndex = i.value; }
+
+// ── TRANSFORM DEMO ──
+let _rot=0,_sc=1,_tx=0;
+function setRot(i) { _rot=i.value; document.getElementById('rot-val').textContent=i.value+'°'; applyTf(); }
+function setSc(i)  { _sc=i.value/10; document.getElementById('sc-val').textContent=_sc.toFixed(1); applyTf(); }
+function setTX(i)  { _tx=i.value; document.getElementById('tx-val').textContent=i.value+'px'; applyTf(); }
+function applyTf() { document.getElementById('transform-box').style.transform=`rotate(${_rot}deg) scale(${_sc}) translateX(${_tx}px)`; }
+
+// ── ANIMATION DEMO ──
+function setAnim() { const n=document.getElementById('anim-pick').value; const d=document.getElementById('dur-val').textContent; document.getElementById('anim-demo').style.animation=`${n} ${d} linear infinite`; }
+function setDur(i) { document.getElementById('dur-val').textContent=i.value+'s'; setAnim(); }
+
+
+// ── JS LIVE RUNNER ──
+function runCode(inputId, outputId) {
+  var code = document.getElementById(inputId).value;
+  var out  = document.getElementById(outputId);
+  var logs = [];
+  var old  = console.log;
+  console.log = function() {
+    logs.push(Array.from(arguments).map(function(a) {
+      return typeof a === 'object' ? JSON.stringify(a, null, 2) : String(a);
+    }).join(' '));
+  };
+  try {
+    eval(code);
+    out.textContent = logs.length ? logs.join('\n') : '(no output)';
+    out.style.color = 'var(--green)';
+  } catch(e) {
+    out.textContent = 'Error: ' + e.message;
+    out.style.color = '#f87171';
+  } finally {
+    console.log = old;
+    out.style.display = 'block';
+  }
+}
+function clrCode(outputId) {
+  var out = document.getElementById(outputId);
+  out.textContent = '';
+  out.style.display = 'none';
+  out.style.color = 'var(--green)';
+}
+
+highlightSidebar();
+</script>
+</body>
+</html>
