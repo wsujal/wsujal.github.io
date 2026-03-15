@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Resources</title>
+<title>Resources — Sujal</title>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -291,7 +291,7 @@
 <body>
 
 <nav>
-  <a href="index.html" class="nav-logo">S<em>ujal's Blog</em></a>
+  <a href="index.html" class="nav-logo">S<em>ujal</em></a>
   <ul class="nav-links">
     <li><a href="index.html">Home</a></li>
     <li><a href="resources.html" class="active">Resources</a></li>
@@ -300,14 +300,14 @@
 </nav>
 
 <div class="page-header fade-up d1">
-  <div class="page-eyebrow">Materials</div>
+  <div class="page-eyebrow">Study Material</div>
   <h1>Resources</h1>
 </div>
 
 <div class="filter-bar fade-up d2">
   <button class="filter-btn active" onclick="filterRes('all', this)">All</button>
   <button class="filter-btn" onclick="filterRes('microprocessor', this)">Microprocessor</button>
-  <button class="filter-btn" onclick="filterRes('web', this)">Web Technology</button>
+  <button class="filter-btn" onclick="filterRes('ajp', this)">Adv. Java</button>
   <button class="filter-btn" onclick="filterRes('interactive', this)">Interactive</button>
   <button class="filter-btn" onclick="filterRes('soon', this)">Coming Soon</button>
 </div>
@@ -335,7 +335,7 @@
       <div class="res-body">
         <div class="res-tag">8085 Architecture · Unit 1–3</div>
         <div class="res-title">8085 Internals — ALU, Registers, Timing</div>
-        <div class="res-desc">Timing diagrams, bus operations, and pin descriptions.</div>
+        <div class="res-desc">Timing diagrams, bus operations, and pin descriptions</div>
       </div>
       <div class="res-meta">
         <div class="res-type type-soon">Soon</div>
@@ -355,25 +355,50 @@
     </div>
   </div>
 
-  <div class="res-group" data-category="web interactive">
-  <div class="res-group-title">🌐 Web Technology · 2160708</div>
+  <div class="res-group" data-category="ajp interactive">
+    <div class="res-group-title">☕ Advanced Java Programming · 3160707</div>
 
-  <a href="webtech.html" class="res-card">
-    <div class="res-icon">🌐</div>
-    <div class="res-body">
-      <div class="res-tag">Web Technology · Full Subject</div>
-      <div class="res-title">Web Technology — Complete Study Notes</div>
-      <div class="res-desc">HTML, CSS & JavaScript with interactive demos, live code runners, and PYQ-tagged theory.</div>
-    </div>
-    <div class="res-meta">
-      <div class="res-type type-interactive">Interactive</div>
-      <div class="res-arrow">→</div>
-    </div>
-  </a>
-</div>
+    <a href="resources/AdvJava/chapter1_networking.html" class="res-card">
+      <div class="res-icon">🌐</div>
+      <div class="res-body">
+        <div class="res-tag">Java Networking · Unit 1</div>
+        <div class="res-title">InetAddress, URL, Sockets, UDP — Interactive Guide</div>
+        <div class="res-desc">InetAddress methods, URL & URLConnection, TCP/IP client-server programs, echo/uppercase/count programs, DatagramSocket & DatagramPacket with examples and quiz.</div>
+      </div>
+      <div class="res-meta">
+        <div class="res-type type-interactive">Interactive</div>
+        <div class="res-arrow">→</div>
+      </div>
+    </a>
 
-  
- <div class="res-group" data-category="soon">
+    <a href="resources/AdvJava/chapter2_jdbc.html" class="res-card">
+      <div class="res-icon">🗄️</div>
+      <div class="res-body">
+        <div class="res-tag">JDBC Programming · Unit 2</div>
+        <div class="res-title">JDBC Architecture, Drivers, Statement, Transactions</div>
+        <div class="res-desc">Driver types (Type 1–4) with architecture diagrams, 5-step JDBC process, Statement vs PreparedStatement vs CallableStatement, ResultSet, transaction management and PYQ programs.</div>
+      </div>
+      <div class="res-meta">
+        <div class="res-type type-interactive">Interactive</div>
+        <div class="res-arrow">→</div>
+      </div>
+    </a>
+
+    <a href="resources/AdvJava/chapter3_servlets.html" class="res-card">
+      <div class="res-icon">⚙️</div>
+      <div class="res-body">
+        <div class="res-tag">Servlets & Servlet API · Unit 3</div>
+        <div class="res-title">Lifecycle, Session Tracking, Filters, RequestDispatcher</div>
+        <div class="res-desc">Servlet lifecycle, doGet vs doPost, ServletConfig & Context, RequestDispatcher forward/include, all 4 session tracking techniques, Cookies, HttpSession, Filter API with programs.</div>
+      </div>
+      <div class="res-meta">
+        <div class="res-type type-interactive">Interactive</div>
+        <div class="res-arrow">→</div>
+      </div>
+    </a>
+  </div>
+
+  <div class="res-group" data-category="soon">
     <div class="res-group-title"> Coming Soon</div>
   </div>
 
@@ -400,9 +425,4 @@ function filterRes(cat, btn) {
 </script>
 
 </body>
-
 </html>
-
-
-
-
