@@ -1,0 +1,1384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Unit 1 — Java Networking · AJP 3160707</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0e11;
+    --surface: #13151a;
+    --surface2: #1a1d24;
+    --border: #222530;
+    --ink: #e8e6e1;
+    --muted: #5c5f6e;
+    --muted2: #8b8fa0;
+    --accent: #e8673a;
+    --accent2: #5b8dee;
+    --card: #111318;
+    --code-bg: hsl(227, 100%, 4%);
+    --code-border: hsl(243, 49%, 27%);
+    --green: #4ade80;
+    --yellow: #fbbf24;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Outfit', sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: radial-gradient(circle, rgba(255,255,255,0.032) 1px, transparent 1px);
+    background-size: 28px 28px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(ellipse 80% 60% at 50% -10%, rgba(232,103,58,0.06) 0%, transparent 65%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* NAV */
+  nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.3rem 3rem;
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    background: rgba(13,14,17,0.88);
+    backdrop-filter: blur(16px);
+    z-index: 100;
+  }
+  .nav-logo {
+    font-family: 'Instrument Serif', serif;
+    font-size: 1.3rem;
+    color: var(--ink);
+    text-decoration: none;
+  }
+  .nav-logo em { color: var(--accent); font-style: italic; }
+  .nav-links { display: flex; gap: 2rem; list-style: none; }
+  .nav-links a {
+    text-decoration: none;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--muted);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--ink); }
+  .nav-links a.active { color: var(--ink); border-bottom: 1.5px solid var(--accent); padding-bottom: 2px; }
+
+  /* PAGE HEADER */
+  .page-header {
+    position: relative; z-index: 1;
+    max-width: 900px; margin: 0 auto;
+    padding: 4rem 3rem 2.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .page-eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem; color: var(--accent);
+    letter-spacing: 0.14em; text-transform: uppercase;
+    margin-bottom: 0.8rem;
+    display: flex; align-items: center; gap: 0.6rem;
+  }
+  .page-eyebrow::before { content: ''; width: 18px; height: 1px; background: var(--accent); }
+  .page-header h1 {
+    font-family: 'Instrument Serif', serif;
+    font-size: clamp(2rem, 4vw, 3rem);
+    letter-spacing: -0.02em; margin-bottom: 0.6rem;
+  }
+  .page-header p { font-size: 0.9rem; color: var(--muted2); line-height: 1.7; font-weight: 300; }
+
+  /* TOC */
+  .toc-bar {
+    position: relative; z-index: 1;
+    max-width: 900px; margin: 0 auto;
+    padding: 1.4rem 3rem;
+    border-bottom: 1px solid var(--border);
+    display: flex; gap: 0.5rem; flex-wrap: wrap;
+  }
+  .toc-btn {
+    padding: 0.35rem 0.9rem;
+    border-radius: 100px;
+    border: 1px solid var(--border);
+    background: transparent;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.62rem; letter-spacing: 0.07em; text-transform: uppercase;
+    color: var(--muted); cursor: pointer; transition: all 0.2s;
+    text-decoration: none; display: inline-block;
+  }
+  .toc-btn:hover { border-color: var(--muted); color: var(--muted2); }
+  .toc-btn.active { background: var(--surface2); border-color: var(--accent); color: var(--accent); }
+
+  /* MAIN CONTENT */
+  .content {
+    position: relative; z-index: 1;
+    max-width: 900px; margin: 0 auto;
+    padding: 2.5rem 3rem 5rem;
+  }
+
+  /* SECTION */
+  .section { margin-bottom: 3.5rem; }
+  .section-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 1rem;
+    padding-bottom: 0.6rem; border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 0.5rem;
+  }
+  .section h2 {
+    font-family: 'Instrument Serif', serif;
+    font-size: 1.6rem; letter-spacing: -0.01em;
+    margin-bottom: 0.8rem; color: var(--ink);
+  }
+  .section h3 {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1rem; font-weight: 600;
+    margin: 1.4rem 0 0.5rem; color: var(--ink);
+  }
+  .section p {
+    font-size: 0.88rem; color: var(--muted2);
+    line-height: 1.75; font-weight: 300; margin-bottom: 0.7rem;
+  }
+  .section ul, .section ol {
+    margin: 0.5rem 0 0.8rem 1.2rem;
+  }
+  .section li {
+    font-size: 0.88rem; color: var(--muted2);
+    line-height: 1.75; font-weight: 300; margin-bottom: 0.25rem;
+  }
+  .section li strong { color: var(--ink); font-weight: 500; }
+
+  /* CODE BLOCK */
+  .code-block {
+    background: var(--code-bg);
+    border: 1px solid var(--code-border);
+    border-radius: 12px;
+    margin: 1rem 0 1.4rem;
+    overflow: hidden;
+  }
+  .code-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0.6rem 1rem;
+    border-bottom: 1px solid var(--code-border);
+    background: rgba(255,255,255,0.03);
+  }
+  .code-lang {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--accent2);
+  }
+  .copy-btn {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.58rem; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--muted); background: none; border: 1px solid var(--code-border);
+    padding: 0.2rem 0.6rem; border-radius: 4px; cursor: pointer; transition: all 0.2s;
+  }
+  .copy-btn:hover { color: var(--ink); border-color: var(--muted); }
+  .copy-btn.copied { color: var(--green); border-color: var(--green); }
+  pre {
+    padding: 1.2rem 1.4rem;
+    overflow-x: auto;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.78rem;
+    line-height: 1.7;
+    color: #c9d1e3;
+  }
+  .kw { color: #7cb9f7; }
+  .cls { color: #f9c07a; }
+  .str { color: #98d982; }
+  .cmt { color: #5a6480; font-style: italic; }
+  .num { color: #f08080; }
+  .fn { color: #c9a6f7; }
+
+  /* OUTPUT BLOCK */
+  .output-block {
+    background: #0a110a;
+    border: 1px solid #1a3a1a;
+    border-radius: 8px;
+    padding: 0.9rem 1.2rem;
+    margin-top: -0.6rem;
+    margin-bottom: 1.4rem;
+  }
+  .output-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.58rem; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--green); margin-bottom: 0.4rem;
+  }
+  .output-block pre {
+    padding: 0; font-size: 0.78rem; color: #7dda82; background: none;
+  }
+
+  /* TABLE */
+  .table-wrap { overflow-x: auto; margin: 1rem 0 1.4rem; border-radius: 10px; border: 1px solid var(--border); }
+  table { width: 100%; border-collapse: collapse; }
+  thead { background: var(--surface2); }
+  th {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.62rem; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--muted); padding: 0.7rem 1rem; text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+  td {
+    font-size: 0.8rem; color: var(--muted2); font-weight: 300;
+    padding: 0.65rem 1rem; border-bottom: 1px solid var(--border);
+    line-height: 1.5;
+  }
+  td code {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem; color: var(--accent2);
+    background: rgba(91,141,238,0.08);
+    padding: 0.1rem 0.35rem; border-radius: 4px;
+  }
+  tr:last-child td { border-bottom: none; }
+  tbody tr:hover { background: var(--surface); }
+
+  /* CALLOUT */
+  .callout {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 2px solid var(--accent);
+    border-radius: 10px;
+    padding: 1rem 1.3rem;
+    font-size: 0.84rem; color: var(--muted2);
+    line-height: 1.65; margin: 1rem 0 1.4rem; font-weight: 300;
+  }
+  .callout strong { color: var(--ink); font-weight: 500; }
+  .callout.blue { border-left-color: var(--accent2); }
+  .callout.green { border-left-color: var(--green); }
+
+  /* DIAGRAM */
+  .diagram {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin: 1rem 0 1.4rem;
+    text-align: center;
+  }
+  .diagram svg { max-width: 100%; }
+
+  /* BADGE */
+  .badge {
+    display: inline-block;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.58rem; letter-spacing: 0.08em; text-transform: uppercase;
+    padding: 0.18rem 0.55rem; border-radius: 100px; border: 1px solid;
+    margin-right: 0.3rem; margin-bottom: 0.3rem;
+  }
+  .badge-orange { color: var(--accent); border-color: rgba(232,103,58,0.3); background: rgba(232,103,58,0.07); }
+  .badge-blue { color: var(--accent2); border-color: rgba(91,141,238,0.3); background: rgba(91,141,238,0.07); }
+  .badge-green { color: var(--green); border-color: rgba(74,222,128,0.3); background: rgba(74,222,128,0.07); }
+
+  /* COMPARE CARD */
+  .compare-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1rem 0 1.4rem; }
+  .compare-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 1.2rem;
+  }
+  .compare-card h4 {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem; letter-spacing: 0.1em; text-transform: uppercase;
+    margin-bottom: 0.8rem;
+  }
+  .compare-card.tcp h4 { color: var(--accent2); }
+  .compare-card.udp h4 { color: var(--accent); }
+  .compare-card li { font-size: 0.82rem; color: var(--muted2); margin-bottom: 0.35rem; }
+
+  /* QUIZ */
+  .quiz-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.8rem;
+    margin-top: 3rem;
+  }
+  .quiz-eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--accent); margin-bottom: 1rem;
+  }
+  .quiz-section h2 {
+    font-family: 'Instrument Serif', serif;
+    font-size: 1.4rem; margin-bottom: 0.4rem;
+  }
+  .quiz-section > p { font-size: 0.84rem; color: var(--muted2); margin-bottom: 1.5rem; font-weight: 300; }
+  .q-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 10px; padding: 1.2rem 1.4rem; margin-bottom: 1rem;
+  }
+  .q-text {
+    font-size: 0.88rem; color: var(--ink);
+    font-weight: 500; margin-bottom: 0.9rem; line-height: 1.5;
+  }
+  .q-options { display: flex; flex-direction: column; gap: 0.45rem; }
+  .q-opt {
+    display: flex; align-items: center; gap: 0.7rem;
+    padding: 0.55rem 0.9rem; border-radius: 8px;
+    border: 1px solid var(--border); cursor: pointer;
+    font-size: 0.82rem; color: var(--muted2);
+    transition: all 0.18s; background: transparent;
+    text-align: left; width: 100%; font-family: 'Outfit', sans-serif;
+  }
+  .q-opt:hover { border-color: var(--muted); color: var(--ink); }
+  .q-opt.correct { border-color: var(--green); color: var(--green); background: rgba(74,222,128,0.06); }
+  .q-opt.wrong { border-color: #f87171; color: #f87171; background: rgba(248,113,113,0.06); }
+  .q-opt.reveal-correct { border-color: var(--green); color: var(--green); background: rgba(74,222,128,0.06); }
+  .q-opt:disabled { cursor: default; }
+  .q-feedback {
+    font-size: 0.78rem; margin-top: 0.6rem; padding: 0.5rem 0.8rem;
+    border-radius: 6px; display: none;
+  }
+  .q-feedback.show { display: block; }
+  .q-feedback.ok { color: var(--green); background: rgba(74,222,128,0.07); border: 1px solid rgba(74,222,128,0.2); }
+  .q-feedback.bad { color: #f87171; background: rgba(248,113,113,0.07); border: 1px solid rgba(248,113,113,0.2); }
+  .quiz-score {
+    margin-top: 1.2rem; padding: 1rem 1.2rem;
+    background: var(--surface2); border-radius: 10px;
+    font-family: 'DM Mono', monospace; font-size: 0.8rem; color: var(--muted2);
+    display: none;
+  }
+  .quiz-score.show { display: block; }
+  .quiz-score span { color: var(--accent); font-size: 1.1rem; }
+  .quiz-actions { display: flex; gap: 0.7rem; margin-top: 1.2rem; }
+  .btn {
+    padding: 0.55rem 1.3rem; border-radius: 8px; cursor: pointer;
+    font-family: 'DM Mono', monospace; font-size: 0.65rem;
+    letter-spacing: 0.08em; text-transform: uppercase; transition: all 0.2s;
+    border: 1px solid var(--border);
+  }
+  .btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .btn-primary:hover { background: #d4562b; }
+  .btn-secondary { background: transparent; color: var(--muted); }
+  .btn-secondary:hover { color: var(--ink); border-color: var(--muted); }
+
+  /* FOOTER */
+  footer {
+    position: relative; z-index: 1;
+    border-top: 1px solid var(--border);
+    padding: 1.8rem 3rem;
+    max-width: 900px; margin: 0 auto;
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 0.73rem; color: var(--muted);
+    font-family: 'DM Mono', monospace;
+  }
+
+  /* ANIMATIONS */
+  .fade-up { opacity: 0; transform: translateY(16px); animation: fu 0.5s cubic-bezier(.22,.68,0,1.2) forwards; }
+  @keyframes fu { to { opacity: 1; transform: translateY(0); } }
+  .d1 { animation-delay: 0.05s; } .d2 { animation-delay: 0.13s; } .d3 { animation-delay: 0.2s; }
+
+  /* INLINE CODE */
+  p code, li code {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.78rem; color: var(--accent2);
+    background: rgba(91,141,238,0.1);
+    padding: 0.1rem 0.35rem; border-radius: 4px;
+  }
+
+  @media (max-width: 700px) {
+    nav { padding: 1rem 1.4rem; }
+    .page-header, .toc-bar, .content { padding-left: 1.4rem; padding-right: 1.4rem; }
+    .compare-grid { grid-template-columns: 1fr; }
+    footer { padding: 1.4rem; flex-direction: column; gap: 0.4rem; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-logo">S<em>ujal</em></a>
+  <ul class="nav-links">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="resources.html">Resources</a></li>
+    <li><a href="https://github.com/wsujal" target="_blank">GitHub ↗</a></li>
+  </ul>
+</nav>
+
+<div class="page-header fade-up d1">
+  <div class="page-eyebrow">AJP · 3160707 · Unit 1</div>
+  <h1>Java Networking</h1>
+  <p>InetAddress, URL, URLConnection, TCP/IP Sockets, Datagrams — with examples and PYQ coverage.</p>
+</div>
+
+<div class="toc-bar fade-up d2">
+  <a class="toc-btn active" href="#basics">Basics</a>
+  <a class="toc-btn" href="#inetaddress">InetAddress</a>
+  <a class="toc-btn" href="#url">URL</a>
+  <a class="toc-btn" href="#urlconnection">URLConnection</a>
+  <a class="toc-btn" href="#sockets">TCP Sockets</a>
+  <a class="toc-btn" href="#programs">Programs</a>
+  <a class="toc-btn" href="#udp">UDP / Datagrams</a>
+  <a class="toc-btn" href="#quiz">Quiz</a>
+</div>
+
+<div class="content fade-up d3">
+
+<!-- ═══════════════════════════════ SECTION 1 ═══════════════════════════════ -->
+<div class="section" id="basics">
+  <div class="section-label">01 — Foundations</div>
+  <h2>Network Basics & Terminology</h2>
+
+  <p>A <strong>network</strong> is an interconnection of computing devices (via cable or wireless) for resource sharing. Devices that <em>consume</em> services are <strong>clients</strong>; devices that <em>provide</em> services are <strong>servers</strong>.</p>
+
+  <div class="diagram">
+    <svg viewBox="0 0 560 120" xmlns="http://www.w3.org/2000/svg" style="max-width:500px">
+      <rect x="20" y="30" width="120" height="60" rx="10" fill="#1a1d24" stroke="#2a3050" stroke-width="1.5"/>
+      <text x="80" y="57" text-anchor="middle" font-family="DM Mono,monospace" font-size="11" fill="#8b8fa0">CLIENT</text>
+      <text x="80" y="74" text-anchor="middle" font-family="DM Mono,monospace" font-size="9" fill="#5c5f6e">requests service</text>
+
+      <rect x="420" y="30" width="120" height="60" rx="10" fill="#1a1d24" stroke="#2a3050" stroke-width="1.5"/>
+      <text x="480" y="57" text-anchor="middle" font-family="DM Mono,monospace" font-size="11" fill="#8b8fa0">SERVER</text>
+      <text x="480" y="74" text-anchor="middle" font-family="DM Mono,monospace" font-size="9" fill="#5c5f6e">provides service</text>
+
+      <line x1="142" y1="60" x2="418" y2="60" stroke="#222530" stroke-width="1" stroke-dasharray="4,3"/>
+      <polygon points="418,55 430,60 418,65" fill="#e8673a" opacity="0.7"/>
+      <text x="280" y="48" text-anchor="middle" font-family="DM Mono,monospace" font-size="9" fill="#e8673a">Request →</text>
+      <polygon points="142,55 130,60 142,65" fill="#5b8dee" opacity="0.7"/>
+      <text x="280" y="78" text-anchor="middle" font-family="DM Mono,monospace" font-size="9" fill="#5b8dee">← Response</text>
+    </svg>
+  </div>
+
+  <h3>Key Terminology</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Term</th><th>Definition</th></tr></thead>
+      <tbody>
+        <tr><td><code>IP Address</code></td><td>Unique identification number for every device on a network.</td></tr>
+        <tr><td><code>DNS</code></td><td>Domain Name Service — maps IP addresses to readable website names.</td></tr>
+        <tr><td><code>Port Number</code></td><td>2-byte (0–65535) unique ID for a socket on a machine.</td></tr>
+        <tr><td><code>URL</code></td><td>Uniform Resource Locator — global address of a web resource.</td></tr>
+        <tr><td><code>TCP/IP</code></td><td>Connection-oriented, <strong>reliable</strong> protocol. Data arrives in order.</td></tr>
+        <tr><td><code>UDP</code></td><td>Connection-less, <strong>unreliable</strong> but faster protocol.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>java.net package</h3>
+  <p>Java's <code>java.net</code> package provides all networking classes. They fall into two groups:</p>
+  <ul>
+    <li><strong>Identification/Connection:</strong> <code>InetAddress</code>, <code>URL</code>, <code>URLConnection</code></li>
+    <li><strong>Communication (send/receive):</strong> <code>Socket</code>, <code>ServerSocket</code>, <code>DatagramPacket</code>, <code>DatagramSocket</code></li>
+  </ul>
+</div>
+
+<!-- ═══════════════════════════════ SECTION 2 ═══════════════════════════════ -->
+<div class="section" id="inetaddress">
+  <div class="section-label">02 — InetAddress</div>
+  <h2>InetAddress Class</h2>
+
+  <p><code>InetAddress</code> (in <code>java.net</code>) encapsulates both the <strong>numerical IP address</strong> and the <strong>host name</strong>. You cannot instantiate it with <code>new</code> — use its static factory methods.</p>
+
+  <div class="callout">
+    <strong>PYQ:</strong> "How do you get the IP address of a machine from its hostname?" — use <code>InetAddress.getByName(hostname)</code>.
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Method</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>getByName(String host)</code></td><td>Returns InetAddress for given hostname. Throws <code>UnknownHostException</code>.</td></tr>
+        <tr><td><code>getAllByName(String host)</code></td><td>Returns array of all IP addresses for a hostname.</td></tr>
+        <tr><td><code>getLocalHost()</code></td><td>Returns InetAddress of the local machine.</td></tr>
+        <tr><td><code>getHostName()</code></td><td>Returns the host name string of this InetAddress.</td></tr>
+        <tr><td><code>getHostAddress()</code></td><td>Returns IP address as a dotted-decimal string.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>getByName() — Resolve hostname → IP</h3>
+  <div class="code-block">
+    <div class="code-header"><span class="code-lang">Java</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <pre><span class="kw">import</span> java.net.*;
+
+<span class="kw">public class</span> <span class="cls">Address</span> {
+    <span class="kw">public static void</span> <span class="fn">main</span>(String[] args) {
+        <span class="kw">try</span> {
+            InetAddress ip = InetAddress.<span class="fn">getByName</span>(<span class="str">"www.example.in"</span>);
+            System.out.<span class="fn">println</span>(<span class="str">"IP: "</span> + ip);
+        } <span class="kw">catch</span> (UnknownHostException e) {
+            System.out.<span class="fn">println</span>(e);
+        }
+    }
+}</pre>
+  </div>
+  <div class="output-block">
+    <div class="output-label">Output</div>
+    <pre>IP: www.example.ac.in/192.168.23.1</pre>
+  </div>
+
+  <h3>getAllByName() — Get all IPs for a host</h3>
+  <div class="code-block">
+    <div class="code-header"><span class="code-lang">Java</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <pre>InetAddress[] addressList = InetAddress.<span class="fn">getAllByName</span>(<span class="str">"wixnets.com"</span>);
+<span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; addressList.length; i++) {
+    System.out.<span class="fn">println</span>(addressList[i]);
+}</pre>
+  </div>
+  <div class="output-block">
+    <div class="output-label">Output</div>
+    <pre>wixnets.com/104.18.48.113
+wixnets.com/172.67.198.137
+wixnets.com/104.18.49.113</pre>
+  </div>
+
+  <h3>getLocalHost() — Your own machine's address</h3>
+  <div class="code-block">
+    <div class="code-header"><span class="code-lang">Java</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <pre>InetAddress localhost = InetAddress.<span class="fn">getLocalHost</span>();
+System.out.<span class="fn">println</span>(<span class="str">"LocalHost: "</span> + localhost);</pre>
+  </div>
+  <div class="output-block">
+    <div class="output-label">Output</div>
+    <pre>LocalHost: LAPTOP-NB4I63VB/10.254.3.79</pre>
+  </div>
+
+  <h3>getHostName() & getHostAddress() — Combined Program</h3>
+  <div class="code-block">
+    <div class="code-header"><span class="code-lang">Java</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <pre><span class="kw">import</span> java.net.*;
+
+<span class="kw">public class</span> <span class="cls">Address</span> {
+    <span class="kw">public static void</span> <span class="fn">main</span>(String[] args) {
+        <span class="kw">try</span> {
+            InetAddress ip = InetAddress.<span class="fn">getByName</span>(<span class="str">"www.example.in"</span>);
+            System.out.<span class="fn">println</span>(<span class="str">"Host Name: "</span>    + ip.<span class="fn">getHostName</span>());
+            System.out.<span class="fn">println</span>(<span class="str">"IP Address: "</span>  + ip.<span class="fn">getHostAddress</span>());
+        } <span class="kw">catch</span> (UnknownHostException e) {
+            System.out.<span class="fn">println</span>(e);
+        }
+    }
+}</pre>
+  </div>
+  <div class="output-block">
+    <div class="output-label">Output</div>
+    <pre>Host Name: www.example.in
+IP Address: 192.168.23.1</pre>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════ SECTION 3 ═══════════════════════════════ -->
+<div class="section" id="url">
+  <div class="section-label">03 — URL</div>
+  <h2>URL Class</h2>
+
+  <p>A <strong>URL (Uniform Resource Locator)</strong> uniquely identifies resources on the internet. It has four components:</p>
+
+  <div class="diagram">
+    <svg viewBox="0 0 560 80" xmlns="http://www.w3.org/2000/svg">
+      <text x="280" y="22" text-anchor="middle" font-family="DM Mono,monospace" font-size="13" fill="#e8e6e1">http://10.255.1.1:8090/index.html</text>
+      <!-- brackets -->
+      <rect x="10" y="30" width="55" height="22" rx="4" fill="rgba(232,103,58,0.12)" stroke="rgba(232,103,58,0.4)" stroke-width="1"/>
+      <text x="37" y="45" text-anchor="middle" font-family="DM Mono,monospace" font-size="8" fill="#e8673a">Protocol</text>
+      <rect x="73" y="30" width="90" height="22" rx="4" fill="rgba(91,141,238,0.12)" stroke="rgba(91,141,238,0.4)" stroke-width="1"/>
+      <text x="118" y="45" text-anchor="middle" font-family="DM Mono,monospace" font-size="8" fill="#5b8dee">Server / IP</text>
+      <rect x="168" y="30" width="55" height="22" rx="4" fill="rgba(74,222,128,0.1)" stroke="rgba(74,222,128,0.35)" stroke-width="1"/>
+      <text x="195" y="45" text-anchor="middle" font-family="DM Mono,monospace" font-size="8" fill="#4ade80">Port</text>
+      <rect x="228" y="30" width="100" height="22" rx="4" fill="rgba(251,191,36,0.08)" stroke="rgba(251,191,36,0.35)" stroke-width="1"/>
+      <text x="278" y="45" text-anchor="middle" font-family="DM Mono,monospace" font-size="8" fill="#fbbf24">File / Path</text>
+    </svg>
+  </div>
+
+  <h3>Constructors</h3>
+  <div class="code-block">
+    <div class="code-header"><span class="code-lang">Java — URL Constructors</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <pre><span class="cmt">// Full constructor</span>
+URL obj = <span class="kw">new</span> <span class="cls">URL</span>(String protocol, String host, <span class="kw">int</span> port, String path);
+
+<span class="cmt">// Without explicit port</span>
+URL obj = <span class="kw">new</span> <span class="cls">URL</span>(String protocol, String host, String path);
+
+<span class="cmt">// Single string</span>
+URL obj = <span class="kw">new</span> <span class="cls">URL</span>(String urlSpecifier);</pre>
+  </div>
+
+  <h3>Important Methods</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Method</th><th>Returns</th></tr></thead>
+      <tbody>
+        <tr><td><code>getProtocol()</code></td><td>Protocol (e.g. <code>http</code>)</td></tr>
+        <tr><td><code>getHost()</code></td><td>Hostname</td></tr>
+        <tr><td><code>getPort()</code></td><td>Port number (-1 if not specified)</td></tr>
+        <tr><td><code>getFile()</code></td><td>File/path part</td></tr>
+        <tr><td><code>getQuery()</code></td><td>Query string after <code>?</code></td></tr>
+        <tr><td><code>getDefaultPort()</code></td><td>Default port for the protocol</td></tr>
+        <tr><td><code>openConnection()</code></td><td>Returns a <code>URLConnection</code> instance</td></tr>
+        <tr><td><code>toURI()</code></td><td>Converts URL to URI</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Example Program</h3>
+  <div class="code-block">
+    <div class="code-header"><span class="code-lang">Java</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <pre><span class="kw">import</span> java.net.*;
+
+<span class="kw">public class</span> <span class="cls">URLDemo</span> {
+    <span class="kw">public static void</span> <span class="fn">main</span>(String[] args) {
+        <span class="kw">try</span> {
+            URL url = <span class="kw">new</span> <span class="cls">URL</span>(<span class="str">"http://www.example.in/EXAMPLE"</span>);
+            System.out.<span class="fn">println</span>(<span class="str">"Protocol: "</span> + url.<span class="fn">getProtocol</span>());
+            System.out.<span class="fn">println</span>(<span class="str">"Host    : "</span> + url.<span class="fn">getHost</span>());
+            System.out.<span class="fn">println</span>(<span class="str">"Port    : "</span> + url.<span class="fn">getPort</span>());
+            System.out.<span class="fn">println</span>(<span class="str">"File    : "</span> + url.<span class="fn">getFile</span>());
+        } <span class="kw">catch</span> (MalformedURLException e) {
+            System.out.<span class="fn">println</span>(e);
+        }
+    }
+}</pre>
+  </div>
+  <div class="output-block">
+    <div class="output-label">Output</div>
+    <pre>Protocol: http
+Host    : www.example.in
+Port    : -1
+File    : /EXAMPLE</pre>
+  </div>
+  <div class="callout blue"><strong>Note:</strong> Port returns <code>-1</code> when not explicitly set in the URL — it means the protocol's default port (80 for HTTP) is used.</div>
+</div>
+
+<!-- ═══════════════════════════════ SECTION 4 ═══════════════════════════════ -->
+<div class="section" id="urlconnection">
+  <div class="section-label">04 — URLConnection</div>
+  <h2>URLConnection Class</h2>
+
+  <p><code>URLConnection</code> lets you actually <strong>connect</strong> to a URL and inspect its headers or read its content. Obtain it via <code>url.openConnection()</code>.</p>
+
+  <div class="callout">
+    <strong>PYQ:</strong> "Explain URL and URLConnection class with example." — URL identifies the resource; URLConnection opens the connection and lets you read metadata and content.
+  </div>
+
+  <h3>How to create</h3>
+  <div class="code-block">
+    <div class="code-header"><span class="code-lang">Java</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <pre>URL url = <span class="kw">new</span> <span class="cls">URL</span>(<span class="str">"https://example.com"</span>);
+URLConnection conn = url.<span class="fn">openConnection</span>();</pre>
+  </div>
+
+  <h3>Key Methods</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Method</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>getContentLength()</code></td><td>Content size in bytes (int)</td></tr>
+        <tr><td><code>getContentLengthLong()</code></td><td>Content size in bytes (long) — JDK 7+</td></tr>
+        <tr><td><code>getContentType()</code></td><td>MIME type of content (e.g. <code>text/html</code>)</td></tr>
+        <tr><td><code>getDate()</code></td><td>Response date in milliseconds</td></tr>
+        <tr><td><code>getExpiration()</code></td><td>Expiry timestamp of resource</td></tr>
+        <tr><td><code>getHeaderField(String name)</code></td><td>Value of a named HTTP header</td></tr>
+        <tr><td><code>getInputStream()</code></td><td>Read raw content from the connection</td></tr>
+        <tr><td><code>getOutputStream()</code></td><td>Write data to the connection</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Example Program — Read page details & content</h3>
+  <div class="code-block">
+    <div class="code-header"><span class="code-lang">Java</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <pre><span class="kw">import</span> java.net.*;
+<span class="kw">import</span> java.io.*;
+<span class="kw">import</span> java.util.*;
+
+<span class="kw">public class</span> <span class="cls">URLConnectionDemo</span> {
+    <span class="kw">public static void</span> <span class="fn">main</span>(String[] args) {
+        <span class="kw">try</span> {
+            URL url = <span class="kw">new</span> <span class="cls">URL</span>(<span class="str">"https://www.w3schools.com/html/default.asp"</span>);
+            URLConnection con = url.<span class="fn">openConnection</span>();
+
+            System.out.<span class="fn">println</span>(<span class="str">"Date         : "</span> + <span class="kw">new</span> <span class="cls">Date</span>(con.<span class="fn">getDate</span>()));
+            System.out.<span class="fn">println</span>(<span class="str">"Content-Type : "</span> + con.<span class="fn">getContentType</span>());
+            System.out.<span class="fn">println</span>(<span class="str">"Expiry       : "</span> + con.<span class="fn">getExpiration</span>());
+            System.out.<span class="fn">println</span>(<span class="str">"Length       : "</span> + con.<span class="fn">getContentLength</span>());
+
+            <span class="kw">if</span> (con.<span class="fn">getContentLength</span>() &gt; <span class="num">0</span>) {
+                <span class="kw">int</span> ch;
+                InputStream in = con.<span class="fn">getInputStream</span>();
+                <span class="kw">while</span> ((ch = in.<span class="fn">read</span>()) != -<span class="num">1</span>) {
+                    System.out.<span class="fn">print</span>((<span class="kw">char</span>) ch);
+                }
+            }
+        } <span class="kw">catch</span> (Exception e) {
+            System.out.<span class="fn">println</span>(e);
+        }
+    }
+}</pre>
+  </div>
+  <div class="output-block">
+    <div class="output-label">Output (partial)</div>
+    <pre>Date         : Wed Jan 27 10:22:47 IST 2021
+Content-Type : text/html
+Expiry       : 1611737567000
+Length       : 62188
+&lt;!DOCTYPE html&gt;
+&lt;html lang="en-US"&gt;
+...</pre>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════ SECTION 5 ═══════════════════════════════ -->
+<div class="section" id="sockets">
+  <div class="section-label">05 — TCP/IP Sockets</div>
+  <h2>Sockets & Client–Server Architecture</h2>
+
+  <p>A <strong>socket</strong> is one endpoint of a two-way communication link — a combination of an <strong>IP address + port number</strong>. Java provides two classes:</p>
+  <ul>
+    <li><code>ServerSocket</code> — used on the <strong>server side</strong> to listen for incoming connections.</li>
+    <li><code>Socket</code> — used on the <strong>client side</strong> (and returned by <code>accept()</code> on the server).</li>
+  </ul>
+
+  <div class="callout">
+    <strong>PYQ:</strong> "Compare Socket with ServerSocket" / "Differences between TCP socket and UDP socket"
+  </div>
+
+  <div class="compare-grid">
+    <div class="compare-card tcp">
+      <h4>Socket (Client)</h4>
+      <ul>
+        <li>Created with hostname + port</li>
+        <li>Initiates the connection</li>
+        <li>Uses <code>getInputStream()</code> / <code>getOutputStream()</code> to communicate</li>
+        <li>Class: <code>java.net.Socket</code></li>
+      </ul>
+    </div>
+    <div class="compare-card udp">
+      <h4>ServerSocket (Server)</h4>
+      <ul>
+        <li>Created with just a port number</li>
+        <li>Waits via <code>accept()</code></li>
+        <li><code>accept()</code> blocks until a client connects, then returns a <code>Socket</code></li>
+        <li>Class: <code>java.net.ServerSocket</code></li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>TCP vs UDP — Key Differences</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Feature</th><th>TCP</th><th>UDP</th></tr></thead>
+      <tbody>
+        <tr><td>Connection</td><td>Connection-oriented</td><td>Connectionless</td></tr>
+        <tr><td>Reliability</td><td>Guaranteed delivery</td><td>No guarantee</td></tr>
+        <tr><td>Order</td><td>Data arrives in order</td><td>May arrive out of order</td></tr>
+        <tr><td>Speed</td><td>Slower (overhead)</td><td>Faster</td></tr>
+        <tr><td>Java Classes</td><td><code>Socket</code>, <code>ServerSocket</code></td><td><code>DatagramSocket</code>, <code>DatagramPacket</code></td></tr>
+        <tr><td>Use Case</td><td>File transfer, HTTP</td><td>Video streaming, DNS</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Socket Methods</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Method</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>getInetAddress()</code></td><td>Returns remote address of the socket</td></tr>
+        <tr><td><code>getPort()</code></td><td>Returns remote port number</td></tr>
+        <tr><td><code>getLocalPort()</code></td><td>Returns local port number</td></tr>
+        <tr><td><code>getInputStream()</code></td><td>Returns InputStream to <strong>receive</strong> data</td></tr>
+        <tr><td><code>getOutputStream()</code></td><td>Returns OutputStream to <strong>send</strong> data</td></tr>
+        <tr><td><code>connect(addr, timeout)</code></td><td>Connects with a timeout</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>I/O Streams in Socket Programming</h3>
+  <div class="diagram">
+    <svg viewBox="0 0 560 130" xmlns="http://www.w3.org/2000/svg">
+      <!-- Server box -->
+      <rect x="20" y="20" width="160" height="90" rx="10" fill="#13151a" stroke="#222530" stroke-width="1.5"/>
+      <text x="100" y="42" text-anchor="middle" font-family="DM Mono,monospace" font-size="10" fill="#e8673a">SERVER</text>
+      <text x="100" y="60" text-anchor="middle" font-family="DM Mono,monospace" font-size="8.5" fill="#5c5f6e">ServerSocket</text>
+      <text x="100" y="76" text-anchor="middle" font-family="DM Mono,monospace" font-size="8.5" fill="#5c5f6e">PrintStream</text>
+      <text x="100" y="92" text-anchor="middle" font-family="DM Mono,monospace" font-size="8.5" fill="#5c5f6e">OutputStream</text>
+
+      <!-- Client box -->
+      <rect x="380" y="20" width="160" height="90" rx="10" fill="#13151a" stroke="#222530" stroke-width="1.5"/>
+      <text x="460" y="42" text-anchor="middle" font-family="DM Mono,monospace" font-size="10" fill="#5b8dee">CLIENT</text>
+      <text x="460" y="60" text-anchor="middle" font-family="DM Mono,monospace" font-size="8.5" fill="#5c5f6e">Socket</text>
+      <text x="460" y="76" text-anchor="middle" font-family="DM Mono,monospace" font-size="8.5" fill="#5c5f6e">BufferedReader</text>
+      <text x="460" y="92" text-anchor="middle" font-family="DM Mono,monospace" font-size="8.5" fill="#5c5f6e">InputStream</text>
+
+      <!-- Arrow -->
+      <line x1="182" y1="65" x2="378" y2="65" stroke="#2a3050" stroke-width="1.5" stroke-dasharray="5,3"/>
+      <polygon points="378,60 390,65 378,70" fill="#e8673a" opacity="0.8"/>
+      <text x="280" y="56" text-anchor="middle" font-family="DM Mono,monospace" font-size="8" fill="#8b8fa0">data over socket</text>
+    </svg>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════ SECTION 6 ═══════════════════════════════ -->
+<div class="section" id="programs">
+  <div class="section-label">06 — TCP Programs</div>
+  <h2>TCP Socket Programs</h2>
+
+  <h3>Program 1 — Simple Message: Server → Client</h3>
+  <p>Server sends <em>"Hello client"</em>; client receives and prints it.</p>
+
+  <div class="code-block">
+    <div class="code-header"><span class="code-lang">Java — MyServer.java</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <pre><span class="kw">import</span> java.net.*;
+<span class="kw">import</span> java.io.*;
+
+<span class="kw">public class</span> <span class="cls">MyServer</span> {
+    <span class="kw">public static void</span> <span class="fn">main</span>(String[] args) {
+        <span class="kw">try</span> {
+            ServerSocket ss = <span class="kw">new</span> <span class="cls">ServerSocket</span>(<span class="num">888</span>);   <span class="cmt">// Step 1: bind to port</span>
+            Socket s = ss.<span class="fn">accept</span>();                    <span class="cmt">// Step 2: wait for client</span>
+
+            OutputStream obj = s.<span class="fn">getOutputStream</span>();   <span class="cmt">// Step 3: get output stream</span>
+            PrintStream ps = <span class="kw">new</span> <span class="cls">PrintStream</span>(obj);
+
+            ps.<span class="fn">println</span>(<span class="str">"Hello client"</span>);               <span class="cmt">// Step 4: send data</span>
+
+            ss.<span class="fn">close</span>(); s.<span class="fn">close</span>(); ps.<span class="fn">close</span>();        <span class="cmt">// Step 5: close all</span>
+        } <span class="kw">catch</span> (IOException ex) { ex.<span class="fn">printStackTrace</span>(); }
+    }
+}</pre>
+  </div>
+
+  <div class="code-block">
+    <div class="code-header"><span class="code-lang">Java — MyClient.java</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <pre><span class="kw">import</span> java.net.*;
+<span class="kw">import</span> java.io.*;
+
+<span class="kw">public class</span> <span class="cls">MyClient</span> {
+    <span class="kw">public static void</span> <span class="fn">main</span>(String[] args) {
+        <span class="kw">try</span> {
+            Socket s = <span class="kw">new</span> <span class="cls">Socket</span>(<span class="str">"localhost"</span>, <span class="num">888</span>);    <span class="cmt">// Step 1: connect to server</span>
+
+            InputStream inStr = s.<span class="fn">getInputStream</span>();    <span class="cmt">// Step 2: get input stream</span>
+            BufferedReader br =
+                <span class="kw">new</span> <span class="cls">BufferedReader</span>(<span class="kw">new</span> <span class="cls">InputStreamReader</span>(inStr));
+
+            String msg = br.<span class="fn">readLine</span>();               <span class="cmt">// Step 3: read data</span>
+            System.out.<span class="fn">println</span>(<span class="str">"Message: "</span> + msg);
+
+            br.<span class="fn">close</span>(); s.<span class="fn">close</span>();                    <span class="cmt">// Step 4: close</span>
+        } <span class="kw">catch</span> (IOException ex) { ex.<span class="fn">printStackTrace</span>(); }
+    }
+}</pre>
+  </div>
+  <div class="output-block">
+    <div class="output-label">Client Output</div>
+    <pre>Message: Hello client</pre>
+  </div>
+
+  <h3>Program 2 — Echo: Client sends string, Server echoes it back (PYQ ★)</h3>
+  <div class="code-block">
+    <div class="code-header"><span class="code-lang">Java — EchoServer.java</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <pre><span class="kw">import</span> java.net.*;
+<span class="kw">import</span> java.io.*;
+
+<span class="kw">public class</span> <span class="cls">EchoServer</span> {
+    <span class="kw">public static void</span> <span class="fn">main</span>(String[] args) <span class="kw">throws</span> Exception {
+        ServerSocket ss = <span class="kw">new</span> <span class="cls">ServerSocket</span>(<span class="num">9000</span>);
+        System.out.<span class="fn">println</span>(<span class="str">"Server waiting..."</span>);
+        Socket s = ss.<span class="fn">accept</span>();
+
+        <span class="cmt">// Read from client</span>
+        BufferedReader br = <span class="kw">new</span> <span class="cls">BufferedReader</span>(
+            <span class="kw">new</span> <span class="cls">InputStreamReader</span>(s.<span class="fn">getInputStream</span>()));
+        String received = br.<span class="fn">readLine</span>();
+        System.out.<span class="fn">println</span>(<span class="str">"Received: "</span> + received);
+
+        <span class="cmt">// Echo back to client</span>
+        PrintStream ps = <span class="kw">new</span> <span class="cls">PrintStream</span>(s.<span class="fn">getOutputStream</span>());
+        ps.<span class="fn">println</span>(received);  <span class="cmt">// echo same string</span>
+
+        ss.<span class="fn">close</span>(); s.<span class="fn">close</span>();
+    }
+}</pre>
+  </div>
+  <div class="code-block">
+    <div class="code-header"><span class="code-lang">Java — EchoClient.java</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <pre><span class="kw">import</span> java.net.*;
+<span class="kw">import</span> java.io.*;
+
+<span class="kw">public class</span> <span class="cls">EchoClient</span> {
+    <span class="kw">public static void</span> <span class="fn">main</span>(String[] args) <span class="kw">throws</span> Exception {
+        Socket s = <span class="kw">new</span> <span class="cls">Socket</span>(<span class="str">"localhost"</span>, <span class="num">9000</span>);
+
+        <span class="cmt">// Send string to server</span>
+        PrintStream ps = <span class="kw">new</span> <span class="cls">PrintStream</span>(s.<span class="fn">getOutputStream</span>());
+        ps.<span class="fn">println</span>(<span class="str">"Hello from Client!"</span>);
+
+        <span class="cmt">// Receive echo from server</span>
+        BufferedReader br = <span class="kw">new</span> <span class="cls">BufferedReader</span>(
+            <span class="kw">new</span> <span class="cls">InputStreamReader</span>(s.<span class="fn">getInputStream</span>()));
+        System.out.<span class="fn">println</span>(<span class="str">"Echo: "</span> + br.<span class="fn">readLine</span>());
+
+        s.<span class="fn">close</span>();
+    }
+}</pre>
+  </div>
+
+  <h3>Program 3 — Uppercase: Client string → Server converts → sends back (PYQ ★★)</h3>
+  <div class="code-block">
+    <div class="code-header"><span class="code-lang">Java — UpperServer.java</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <pre><span class="kw">import</span> java.net.*;
+<span class="kw">import</span> java.io.*;
+
+<span class="kw">public class</span> <span class="cls">UpperServer</span> {
+    <span class="kw">public static void</span> <span class="fn">main</span>(String[] args) <span class="kw">throws</span> Exception {
+        ServerSocket ss = <span class="kw">new</span> <span class="cls">ServerSocket</span>(<span class="num">9001</span>);
+        Socket s = ss.<span class="fn">accept</span>();
+
+        BufferedReader br = <span class="kw">new</span> <span class="cls">BufferedReader</span>(
+            <span class="kw">new</span> <span class="cls">InputStreamReader</span>(s.<span class="fn">getInputStream</span>()));
+        String received = br.<span class="fn">readLine</span>();
+
+        PrintStream ps = <span class="kw">new</span> <span class="cls">PrintStream</span>(s.<span class="fn">getOutputStream</span>());
+        ps.<span class="fn">println</span>(received.<span class="fn">toUpperCase</span>());   <span class="cmt">// convert and send back</span>
+
+        ss.<span class="fn">close</span>(); s.<span class="fn">close</span>();
+    }
+}</pre>
+  </div>
+  <div class="code-block">
+    <div class="code-header"><span class="code-lang">Java — UpperClient.java</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <pre><span class="kw">import</span> java.net.*;
+<span class="kw">import</span> java.io.*;
+
+<span class="kw">public class</span> <span class="cls">UpperClient</span> {
+    <span class="kw">public static void</span> <span class="fn">main</span>(String[] args) <span class="kw">throws</span> Exception {
+        Socket s = <span class="kw">new</span> <span class="cls">Socket</span>(<span class="str">"localhost"</span>, <span class="num">9001</span>);
+        BufferedReader keyboard = <span class="kw">new</span> <span class="cls">BufferedReader</span>(
+            <span class="kw">new</span> <span class="cls">InputStreamReader</span>(System.in));
+
+        System.out.<span class="fn">print</span>(<span class="str">"Enter string: "</span>);
+        String input = keyboard.<span class="fn">readLine</span>();
+
+        PrintStream ps = <span class="kw">new</span> <span class="cls">PrintStream</span>(s.<span class="fn">getOutputStream</span>());
+        ps.<span class="fn">println</span>(input);
+
+        BufferedReader br = <span class="kw">new</span> <span class="cls">BufferedReader</span>(
+            <span class="kw">new</span> <span class="cls">InputStreamReader</span>(s.<span class="fn">getInputStream</span>()));
+        System.out.<span class="fn">println</span>(<span class="str">"Server returned: "</span> + br.<span class="fn">readLine</span>());
+
+        s.<span class="fn">close</span>();
+    }
+}</pre>
+  </div>
+  <div class="output-block">
+    <div class="output-label">Sample Output</div>
+    <pre>Enter string: hello world
+Server returned: HELLO WORLD</pre>
+  </div>
+
+  <h3>Program 4 — Word/Char/Digit Count (PYQ ★★★)</h3>
+  <p>Client sends a string; server counts words, characters, digits and sends result back.</p>
+  <div class="code-block">
+    <div class="code-header"><span class="code-lang">Java — CountServer.java</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <pre><span class="kw">import</span> java.net.*;
+<span class="kw">import</span> java.io.*;
+
+<span class="kw">public class</span> <span class="cls">CountServer</span> {
+    <span class="kw">public static void</span> <span class="fn">main</span>(String[] args) <span class="kw">throws</span> Exception {
+        ServerSocket ss = <span class="kw">new</span> <span class="cls">ServerSocket</span>(<span class="num">9002</span>);
+        Socket s = ss.<span class="fn">accept</span>();
+
+        BufferedReader br = <span class="kw">new</span> <span class="cls">BufferedReader</span>(
+            <span class="kw">new</span> <span class="cls">InputStreamReader</span>(s.<span class="fn">getInputStream</span>()));
+        String str = br.<span class="fn">readLine</span>();
+
+        <span class="kw">int</span> words   = str.<span class="fn">trim</span>().<span class="fn">split</span>(<span class="str">"\\s+"</span>).length;
+        <span class="kw">int</span> chars   = str.<span class="fn">length</span>();
+        <span class="kw">int</span> digits  = <span class="num">0</span>;
+        <span class="kw">for</span> (<span class="kw">char</span> c : str.<span class="fn">toCharArray</span>())
+            <span class="kw">if</span> (Character.<span class="fn">isDigit</span>(c)) digits++;
+
+        PrintStream ps = <span class="kw">new</span> <span class="cls">PrintStream</span>(s.<span class="fn">getOutputStream</span>());
+        ps.<span class="fn">println</span>(<span class="str">"Words="</span> + words + <span class="str">", Chars="</span> + chars + <span class="str">", Digits="</span> + digits);
+
+        ss.<span class="fn">close</span>(); s.<span class="fn">close</span>();
+    }
+}</pre>
+  </div>
+  <div class="output-block">
+    <div class="output-label">Sample (input: "hello world 42")</div>
+    <pre>Words=3, Chars=14, Digits=2</pre>
+  </div>
+
+  <h3>Program 5 — Multiple Clients (Threading) (PYQ ★)</h3>
+  <div class="callout blue"><strong>PYQ:</strong> "How do you handle multiple clients concurrently in socket programming?" — Use a new <code>Thread</code> per accepted connection.</div>
+  <div class="code-block">
+    <div class="code-header"><span class="code-lang">Java — MultiServer.java</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <pre><span class="kw">import</span> java.net.*;
+<span class="kw">import</span> java.io.*;
+
+<span class="kw">class</span> <span class="cls">ClientHandler</span> <span class="kw">extends</span> <span class="cls">Thread</span> {
+    Socket s;
+    <span class="cls">ClientHandler</span>(Socket s) { <span class="kw">this</span>.s = s; }
+
+    <span class="kw">public void</span> <span class="fn">run</span>() {
+        <span class="kw">try</span> {
+            BufferedReader br = <span class="kw">new</span> <span class="cls">BufferedReader</span>(
+                <span class="kw">new</span> <span class="cls">InputStreamReader</span>(s.<span class="fn">getInputStream</span>()));
+            PrintStream ps = <span class="kw">new</span> <span class="cls">PrintStream</span>(s.<span class="fn">getOutputStream</span>());
+            String msg = br.<span class="fn">readLine</span>();
+            ps.<span class="fn">println</span>(<span class="str">"Server got: "</span> + msg);
+            s.<span class="fn">close</span>();
+        } <span class="kw">catch</span> (IOException e) { e.<span class="fn">printStackTrace</span>(); }
+    }
+}
+
+<span class="kw">public class</span> <span class="cls">MultiServer</span> {
+    <span class="kw">public static void</span> <span class="fn">main</span>(String[] args) <span class="kw">throws</span> Exception {
+        ServerSocket ss = <span class="kw">new</span> <span class="cls">ServerSocket</span>(<span class="num">9003</span>);
+        System.out.<span class="fn">println</span>(<span class="str">"Waiting for clients..."</span>);
+        <span class="kw">while</span> (<span class="kw">true</span>) {
+            Socket s = ss.<span class="fn">accept</span>();               <span class="cmt">// accept a client</span>
+            <span class="kw">new</span> <span class="cls">ClientHandler</span>(s).<span class="fn">start</span>();       <span class="cmt">// handle in new thread</span>
+        }
+    }
+}</pre>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════ SECTION 7 ═══════════════════════════════ -->
+<div class="section" id="udp">
+  <div class="section-label">07 — UDP / Datagrams</div>
+  <h2>Datagrams — DatagramSocket & DatagramPacket</h2>
+
+  <p><strong>Datagrams</strong> are self-contained data bundles sent via <strong>UDP</strong>. Delivery, order, and integrity are <em>not guaranteed</em>. Java implements datagrams with two classes:</p>
+  <ul>
+    <li><code>DatagramPacket</code> — the data container</li>
+    <li><code>DatagramSocket</code> — the mechanism to send/receive packets</li>
+  </ul>
+
+  <h3>DatagramSocket Constructors</h3>
+  <div class="code-block">
+    <div class="code-header"><span class="code-lang">Java</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <pre><span class="cmt">// Any available port (for sender)</span>
+DatagramSocket ds = <span class="kw">new</span> <span class="cls">DatagramSocket</span>();
+
+<span class="cmt">// Specific port (for receiver)</span>
+DatagramSocket ds = <span class="kw">new</span> <span class="cls">DatagramSocket</span>(<span class="kw">int</span> port);
+
+<span class="cmt">// Specific port + address</span>
+DatagramSocket ds = <span class="kw">new</span> <span class="cls">DatagramSocket</span>(<span class="kw">int</span> port, InetAddress addr);</pre>
+  </div>
+
+  <h3>DatagramPacket Constructors</h3>
+  <div class="code-block">
+    <div class="code-header"><span class="code-lang">Java</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <pre><span class="cmt">// For RECEIVING — just buffer and size</span>
+DatagramPacket dp = <span class="kw">new</span> <span class="cls">DatagramPacket</span>(<span class="kw">byte</span>[] buffer, <span class="kw">int</span> size);
+
+<span class="cmt">// For SENDING — data + destination address + port</span>
+DatagramPacket dp = <span class="kw">new</span> <span class="cls">DatagramPacket</span>(<span class="kw">byte</span>[] data, <span class="kw">int</span> size,
+                        InetAddress address, <span class="kw">int</span> port);</pre>
+  </div>
+
+  <h3>UDP Sender & Receiver Program (PYQ ★★)</h3>
+  <div class="code-block">
+    <div class="code-header"><span class="code-lang">Java — UDPReceiver.java (run first)</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <pre><span class="kw">import</span> java.net.*;
+
+<span class="kw">public class</span> <span class="cls">UDPReceiver</span> {
+    <span class="kw">public static void</span> <span class="fn">main</span>(String[] args) {
+        <span class="kw">try</span> {
+            DatagramSocket ds = <span class="kw">new</span> <span class="cls">DatagramSocket</span>(<span class="num">6666</span>);   <span class="cmt">// Step 1: bind to port</span>
+            <span class="kw">byte</span>[] buffer = <span class="kw">new byte</span>[<span class="num">1024</span>];
+            DatagramPacket dp = <span class="kw">new</span> <span class="cls">DatagramPacket</span>(buffer, <span class="num">1024</span>);
+
+            ds.<span class="fn">receive</span>(dp);                                    <span class="cmt">// Step 2: wait for data</span>
+
+            String str = <span class="kw">new</span> <span class="cls">String</span>(dp.<span class="fn">getData</span>(), <span class="num">0</span>, dp.<span class="fn">getLength</span>());
+            System.out.<span class="fn">println</span>(<span class="str">"Received: "</span> + str);            <span class="cmt">// Step 3: print data</span>
+
+            ds.<span class="fn">close</span>();
+        } <span class="kw">catch</span> (Exception e) { e.<span class="fn">printStackTrace</span>(); }
+    }
+}</pre>
+  </div>
+  <div class="code-block">
+    <div class="code-header"><span class="code-lang">Java — UDPSender.java (run second)</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <pre><span class="kw">import</span> java.net.*;
+
+<span class="kw">public class</span> <span class="cls">UDPSender</span> {
+    <span class="kw">public static void</span> <span class="fn">main</span>(String[] args) {
+        <span class="kw">try</span> {
+            DatagramSocket ds = <span class="kw">new</span> <span class="cls">DatagramSocket</span>();          <span class="cmt">// Step 1: create socket</span>
+            String str = <span class="str">"Message from Sender"</span>;
+            InetAddress ip = InetAddress.<span class="fn">getByName</span>(<span class="str">"localhost"</span>);
+
+            DatagramPacket dp = <span class="kw">new</span> <span class="cls">DatagramPacket</span>(
+                str.<span class="fn">getBytes</span>(), str.<span class="fn">length</span>(), ip, <span class="num">6666</span>);     <span class="cmt">// Step 2: build packet</span>
+
+            ds.<span class="fn">send</span>(dp);                                       <span class="cmt">// Step 3: send</span>
+            ds.<span class="fn">close</span>();
+        } <span class="kw">catch</span> (Exception e) { e.<span class="fn">printStackTrace</span>(); }
+    }
+}</pre>
+  </div>
+  <div class="output-block">
+    <div class="output-label">Receiver Output</div>
+    <pre>Received: Message from Sender</pre>
+  </div>
+
+  <h3>UDP File Transfer (PYQ ★)</h3>
+  <div class="callout blue"><strong>PYQ:</strong> "Client will request to download the file from server and server will send it to client" — server reads a file into byte array and sends it as a DatagramPacket.</div>
+  <div class="code-block">
+    <div class="code-header"><span class="code-lang">Java — FileServer.java (UDP)</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <pre><span class="kw">import</span> java.net.*;
+<span class="kw">import</span> java.io.*;
+<span class="kw">import</span> java.nio.file.*;
+
+<span class="kw">public class</span> <span class="cls">FileServer</span> {
+    <span class="kw">public static void</span> <span class="fn">main</span>(String[] args) <span class="kw">throws</span> Exception {
+        DatagramSocket ds = <span class="kw">new</span> <span class="cls">DatagramSocket</span>(<span class="num">7777</span>);
+
+        <span class="cmt">// Wait for client request</span>
+        <span class="kw">byte</span>[] req = <span class="kw">new byte</span>[<span class="num">256</span>];
+        DatagramPacket request = <span class="kw">new</span> <span class="cls">DatagramPacket</span>(req, req.length);
+        ds.<span class="fn">receive</span>(request);
+        String fileName = <span class="kw">new</span> <span class="cls">String</span>(request.<span class="fn">getData</span>(), <span class="num">0</span>, request.<span class="fn">getLength</span>());
+        System.out.<span class="fn">println</span>(<span class="str">"Client wants: "</span> + fileName);
+
+        <span class="cmt">// Read file and send</span>
+        <span class="kw">byte</span>[] fileData = Files.<span class="fn">readAllBytes</span>(Paths.<span class="fn">get</span>(fileName));
+        InetAddress clientAddr = request.<span class="fn">getAddress</span>();
+        <span class="kw">int</span> clientPort = request.<span class="fn">getPort</span>();
+
+        DatagramPacket response = <span class="kw">new</span> <span class="cls">DatagramPacket</span>(
+            fileData, fileData.length, clientAddr, clientPort);
+        ds.<span class="fn">send</span>(response);
+        System.out.<span class="fn">println</span>(<span class="str">"File sent!"</span>);
+        ds.<span class="fn">close</span>();
+    }
+}</pre>
+  </div>
+  <div class="code-block">
+    <div class="code-header"><span class="code-lang">Java — FileClient.java (UDP)</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <pre><span class="kw">import</span> java.net.*;
+<span class="kw">import</span> java.io.*;
+
+<span class="kw">public class</span> <span class="cls">FileClient</span> {
+    <span class="kw">public static void</span> <span class="fn">main</span>(String[] args) <span class="kw">throws</span> Exception {
+        DatagramSocket ds = <span class="kw">new</span> <span class="cls">DatagramSocket</span>();
+        InetAddress ip = InetAddress.<span class="fn">getByName</span>(<span class="str">"localhost"</span>);
+
+        <span class="cmt">// Send file request</span>
+        String request = <span class="str">"test.txt"</span>;
+        DatagramPacket req = <span class="kw">new</span> <span class="cls">DatagramPacket</span>(
+            request.<span class="fn">getBytes</span>(), request.<span class="fn">length</span>(), ip, <span class="num">7777</span>);
+        ds.<span class="fn">send</span>(req);
+
+        <span class="cmt">// Receive file data</span>
+        <span class="kw">byte</span>[] buf = <span class="kw">new byte</span>[<span class="num">65507</span>];
+        DatagramPacket resp = <span class="kw">new</span> <span class="cls">DatagramPacket</span>(buf, buf.length);
+        ds.<span class="fn">receive</span>(resp);
+
+        FileOutputStream fos = <span class="kw">new</span> <span class="cls">FileOutputStream</span>(<span class="str">"received_test.txt"</span>);
+        fos.<span class="fn">write</span>(resp.<span class="fn">getData</span>(), <span class="num">0</span>, resp.<span class="fn">getLength</span>());
+        fos.<span class="fn">close</span>();
+        System.out.<span class="fn">println</span>(<span class="str">"File received and saved!"</span>);
+        ds.<span class="fn">close</span>();
+    }
+}</pre>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════ QUIZ ═══════════════════════════════ -->
+<div class="quiz-section" id="quiz">
+  <div class="quiz-eyebrow">Unit 1 · Practice</div>
+  <h2>Quick Quiz</h2>
+  <p>Test your understanding of Java Networking concepts.</p>
+
+  <div id="quiz-container"></div>
+
+  <div class="quiz-actions">
+    <button class="btn btn-primary" onclick="submitQuiz()">Submit Quiz</button>
+    <button class="btn btn-secondary" onclick="resetQuiz()">Reset</button>
+  </div>
+  <div class="quiz-score" id="quiz-score"></div>
+</div>
+
+</div><!-- end .content -->
+
+<footer>
+  <span>Sujal · AJP Unit 1</span>
+  <span>github.com/wsujal</span>
+</footer>
+
+<script>
+// ──────────────── COPY CODE ────────────────
+function copyCode(btn) {
+  const pre = btn.closest('.code-block').querySelector('pre');
+  navigator.clipboard.writeText(pre.innerText).then(() => {
+    btn.textContent = 'Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 1800);
+  });
+}
+
+// ──────────────── TOC ACTIVE ────────────────
+const tocBtns = document.querySelectorAll('.toc-btn');
+tocBtns.forEach(btn => {
+  btn.addEventListener('click', () => {
+    tocBtns.forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  });
+});
+
+// ──────────────── QUIZ ────────────────
+const questions = [
+  {
+    q: "Which method of InetAddress returns an array of all IP addresses for a hostname?",
+    opts: ["getByName()", "getAllByName()", "getLocalHost()", "getHostAddress()"],
+    ans: 1,
+    explain: "getAllByName() returns InetAddress[] — all IPs mapped to that hostname."
+  },
+  {
+    q: "What does getPort() return when the URL 'http://www.example.com/page' is parsed?",
+    opts: ["80", "0", "-1", "443"],
+    ans: 2,
+    explain: "getPort() returns -1 when no port is explicitly set in the URL string."
+  },
+  {
+    q: "Which class is used on the SERVER side to listen for incoming TCP connections?",
+    opts: ["Socket", "DatagramSocket", "ServerSocket", "URLConnection"],
+    ans: 2,
+    explain: "ServerSocket binds to a port and its accept() method waits for client connections."
+  },
+  {
+    q: "In UDP programming, which object is the data container?",
+    opts: ["DatagramSocket", "DatagramPacket", "Socket", "BufferedReader"],
+    ans: 1,
+    explain: "DatagramPacket is the data container; DatagramSocket is the mechanism to send/receive it."
+  },
+  {
+    q: "To handle multiple TCP clients concurrently, the best approach is:",
+    opts: [
+      "Create multiple ServerSockets",
+      "Use a new Thread per accepted client connection",
+      "Use UDP instead of TCP",
+      "Call accept() multiple times sequentially"
+    ],
+    ans: 1,
+    explain: "Each accepted Socket is passed to a new Thread (ClientHandler), allowing concurrent handling."
+  },
+  {
+    q: "Which method of URLConnection returns the MIME type of the response content?",
+    opts: ["getDate()", "getContentLength()", "getContentType()", "getHeaderField()"],
+    ans: 2,
+    explain: "getContentType() returns the MIME type, e.g. 'text/html'."
+  },
+  {
+    q: "What does InetAddress.getLocalHost() return?",
+    opts: [
+      "IP of Google DNS",
+      "IP and hostname of the local machine",
+      "The default gateway IP",
+      "null always"
+    ],
+    ans: 1,
+    explain: "getLocalHost() returns an InetAddress containing the local machine's hostname and IP."
+  },
+  {
+    q: "TCP is preferred over UDP when:",
+    opts: [
+      "Speed is more important than accuracy",
+      "We are streaming video",
+      "Reliable, ordered delivery is required",
+      "Broadcasting to many clients"
+    ],
+    ans: 2,
+    explain: "TCP guarantees delivery and ordering — ideal for file transfers, HTTP, email."
+  }
+];
+
+function buildQuiz() {
+  const container = document.getElementById('quiz-container');
+  container.innerHTML = '';
+  questions.forEach((q, i) => {
+    const card = document.createElement('div');
+    card.className = 'q-card';
+    card.innerHTML = `
+      <div class="q-text">Q${i+1}. ${q.q}</div>
+      <div class="q-options">
+        ${q.opts.map((o, j) => `
+          <button class="q-opt" data-qi="${i}" data-oi="${j}" onclick="selectOpt(this, ${i}, ${j})">
+            <span style="font-family:'DM Mono',monospace;font-size:0.7rem;color:var(--muted);margin-right:4px">${String.fromCharCode(65+j)}.</span> ${o}
+          </button>
+        `).join('')}
+      </div>
+      <div class="q-feedback" id="fb-${i}"></div>
+    `;
+    container.appendChild(card);
+  });
+}
+
+let selected = {};
+
+function selectOpt(btn, qi, oi) {
+  const opts = btn.closest('.q-options').querySelectorAll('.q-opt');
+  opts.forEach(o => { o.classList.remove('selected'); o.style.borderColor = ''; o.style.color = ''; });
+  btn.style.borderColor = 'var(--accent2)';
+  btn.style.color = 'var(--ink)';
+  selected[qi] = oi;
+}
+
+function submitQuiz() {
+  let score = 0;
+  questions.forEach((q, i) => {
+    const opts = document.querySelectorAll(`[data-qi="${i}"]`);
+    const fb = document.getElementById(`fb-${i}`);
+    opts.forEach(o => { o.disabled = true; o.style.borderColor = ''; o.style.color = ''; });
+
+    if (selected[i] === undefined) {
+      fb.textContent = '⚠ Not answered. Answer: ' + String.fromCharCode(65 + q.ans);
+      fb.className = 'q-feedback show bad';
+      opts[q.ans].classList.add('reveal-correct');
+      return;
+    }
+    if (selected[i] === q.ans) {
+      score++;
+      opts[selected[i]].classList.add('correct');
+      fb.textContent = '✓ Correct! ' + q.explain;
+      fb.className = 'q-feedback show ok';
+    } else {
+      opts[selected[i]].classList.add('wrong');
+      opts[q.ans].classList.add('reveal-correct');
+      fb.textContent = '✗ Incorrect. ' + q.explain;
+      fb.className = 'q-feedback show bad';
+    }
+  });
+
+  const scoreEl = document.getElementById('quiz-score');
+  const pct = Math.round((score / questions.length) * 100);
+  scoreEl.innerHTML = `Score: <span>${score}/${questions.length}</span> &nbsp;·&nbsp; ${pct}% &nbsp;·&nbsp; ${pct >= 75 ? '🎉 Great job!' : pct >= 50 ? '📚 Keep revising.' : '💡 Review the notes above.'}`;
+  scoreEl.className = 'quiz-score show';
+}
+
+function resetQuiz() {
+  selected = {};
+  document.getElementById('quiz-score').className = 'quiz-score';
+  buildQuiz();
+}
+
+buildQuiz();
+</script>
+</body>
+</html>
